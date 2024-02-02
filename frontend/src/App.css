@@ -1,0 +1,45 @@
+body{
+  font-family: 'Poppins', sans-serif;
+}
+.welcome-container {
+  background: linear-gradient(0deg, rgba(235,234,234,1) 0%, #9aa6f8 0%, #5a73f7 30%);;
+  height:100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin:0 auto;
+  justify-content: center;
+  text-align: center;
+}
+
+.logo-container img {
+  width: 100px; /* Adjust the width as needed */
+}
+
+.welcome-heading {
+  margin: 20px 0;
+  color: #f9f9f9;
+}
+
+.welcome-heading span {
+  color: #284cff;
+}
+
+.button-container {
+  display: flex;
+  gap: 10px;
+}
+
+.register-button {
+  background-color: #3498db; /* Adjust the color as needed */
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.login-now-text {
+  margin: 20px 0;
+  font-size: small;
+}
