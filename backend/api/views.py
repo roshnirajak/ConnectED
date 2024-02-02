@@ -178,6 +178,7 @@ class GetUserProfileView(APIView):
                 "full_name": user_profile.full_name,
                 "email": user_profile.email,
                 "college_name": user_profile.college_name,
+                "designation": user_profile.designation,
                 "community_id": user_profile.community_id,
                 "display_image": user_profile.display_image,
                 "user_role": user_profile.user_role,
@@ -209,9 +210,10 @@ class UpdateUserProfileView(APIView):
             user = self.request.user
             email = user.email
             print(email)
-
+            
             full_name = request.data.get("full_name")
             college_name = request.data.get("college_name")
+            
 
             # Check if required fields are present in the request data
             if not (full_name and college_name):
@@ -228,11 +230,7 @@ class UpdateUserProfileView(APIView):
                 "user_id": user_profile.user_id,
                 "full_name": user_profile.full_name,
                 "email": user_profile.email,
-                "college_name": user_profile.college_name,
                 "community_id": user_profile.community_id,
-                "display_image": user_profile.display_image,
-                "user_role": user_profile.user_role,
-                "created_at": user_profile.created_at,
             }
 
             # Include mentor_id_card_data if available
@@ -278,6 +276,9 @@ class UpdatePasswordView(APIView):
             return Response({'error': f'Something went wrong when updating password: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+
+
+#old code (needs to be deleted )
 @api_view(["GET"])
 def get_user_profile(request):
     # Get user email from the request or session
