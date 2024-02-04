@@ -65,13 +65,14 @@ AUTHENTICATION_BACKENDS = [
 
 #SESSION_ENGINE = "django.contrib.sessions.backends.db"  # or any other session engine
 # SESSION_SAVE_EVERY_REQUEST = True
-CSRF_TRUSTED_ORIGINS = ['http://*localhost:3000', 'http://*192.168.1.7:3000']
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000', 'http://192.168.1.7:3000']
 # CSRF_COOKIE_SAMESITE = 'None'
 # SESSION_COOKIE_SAMESITE = 'None'
 
 ALLOWED_HOSTS = ['*']
 
-CORS_ALLOWED_ORIGINS = ['http://*localhost:3000', 'http://*192.168.1.7:3000']
+CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://192.168.1.7:3000']
+CORS_ALLOW_CREDENTIALS = True   # For cookie
 
 ROOT_URLCONF = 'backend.urls'
 

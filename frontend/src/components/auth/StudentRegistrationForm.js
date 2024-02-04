@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
 
 const StudentRegistrationForm = () => {
   const navigate = useNavigate();
@@ -16,6 +18,7 @@ const StudentRegistrationForm = () => {
 
   // const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [csrfCookie, setCsrfCookie] = useState('');
 
   const isFnameValid = formData.full_name.length >= 3;
   const isEmailValid = formData.email.length >= 5;
@@ -27,40 +30,29 @@ const StudentRegistrationForm = () => {
   };
 
 
-  const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   console.log(formData);
 
-  //   try {
-
-  //     const response = await fetch('http://192.168.1.7:8000/register/', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify(formData),
-  //     });
-
-  //     const data = await response.json();
-  //     console.log(data);  // Handle the response as needed, maybe redirect to the login page
-  //     window.location.href = '/login';
-  //   } catch (error) {
-  //     setErrorMessage("Email Exists");
-  //     console.error('Error during registration:', error);
-  //   }
-  };
-
-  //doing things the right way starting with getting csrf token
   useEffect(() => {
     const fetchCsrfCookie = async () => {
       try {
-        // Fetch CSRF cookie from Django
-        const response = await fetch('http://192.168.1.7:8000/csrf_cookie', {
-          method: 'GET',
-          credentials: 'include', // Include credentials (cookies) in the request
+        // Fetch CSRF cookie from Django using Axios
+        const response = await axios.get('http://192.168.1.7:8000/csrf_cookie/', {
+          withCredentials: true, // Include credentials (cookies) in the request
+          headers: {
+            'Content-Type': 'application/json',  // Add any required headers here
+          },
         });
-
-        if (response.ok) {
+  
+        if (response.status === 200) {
+          // Extract CSRF token from the cookie
+          const csrfCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('csrftoken='))
+            .split('=')[1];
+  
+          // Use the csrfCookie value as needed
+          setCsrfCookie(csrfCookie)
+          console.log('CSRF token:', csrfCookie);
+  
           // Once CSRF cookie is obtained, navigate to '/student-registration'
         } else {
           console.error('Failed to fetch CSRF cookie:', response.status);
@@ -69,10 +61,44 @@ const StudentRegistrationForm = () => {
         console.error('Error during CSRF cookie fetch:', error);
       }
     };
-
+  
     // Call the function to fetch CSRF cookie when the component mounts
     fetchCsrfCookie();
   }, [navigate]);
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    try {
+      // Prepare the data to be sent
+      const requestData = {
+        ...formData,
+        csrfmiddlewaretoken: csrfCookie, // Include CSRF token in the request data
+      };
+  
+      // Send a POST request to your Django server
+      const response = await axios.post('http://192.168.1.7:8000/register/', requestData, {
+        withCredentials: true, // Include credentials (cookies) in the request
+        headers: {
+          'Content-Type': 'application/json',  // Add any required headers here
+          'X-CSRFToken': csrfCookie
+        },
+      });
+  
+      if (response.status === 200) {
+        // Registration successful
+        console.log('Registration successful!');
+        navigate('/login'); // Redirect to login page
+      } else {
+        console.error('Registration failed:', response.status);
+        setErrorMessage('Registration failed. Please try again.'); // Set an error message for the user
+      }
+    } catch (error) {
+      console.error('Error during registration:', error);
+      setErrorMessage('Registration failed. Please try again.'); // Set an error message for the user
+    }
+  };
   return (
     <form onSubmit={handleSubmit}>
       <h1>Student register </h1>

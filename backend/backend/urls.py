@@ -26,7 +26,7 @@ urlpatterns = [
     path("logout/", LogoutView.as_view()),
     path('delete/', DeactivateAccountView.as_view()),
     path("csrf_cookie/", GetCSRFToken.as_view()),
-    path('user/', GetUserProfileView.as_view()),
+    path('user-profile/', GetUserProfileView.as_view()),
     path('update-profile/', UpdateUserProfileView.as_view()),
     path('update-password/', UpdatePasswordView.as_view()),
     path('getuser/', GetUser.as_view()),

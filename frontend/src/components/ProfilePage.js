@@ -2,51 +2,59 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import axios from 'axios';
 
 const ProfilePage = () => {
     const navigate = useNavigate();
     const [userProfile, setUserProfile] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     useEffect(() => {
-        const userEmail = Cookies.get('email');
-        // Access the user's email from the cookie
-        fetch(`http://192.168.1.7:8000/api/get_user_profile/?email=${encodeURIComponent(userEmail)}`)
+        const sessionId = Cookies.get('sessionid');
+        const csrfToken = Cookies.get('csrftoken');
+        console.log(csrfToken);
+        console.log(sessionId);
+        axios.get('http://192.168.1.7:8000/user-profile/', {
+            withCredentials: true,
+            // headers: {
+            //     'Content-Type': 'application/json',
+            //     'sessionid': sessionId,
+            //     'X-CSRFToken': csrfToken,
+            // },
+        })
             .then(response => {
-                if (!response.ok) {
-                    window.location.href = '/login';
-                    throw new Error('Failed to fetch user profile');
-                }
-                return response.json();
-            })
-            .then(data => {
+                const data = response.data;
                 console.log('User profile data:', data);
                 setUserProfile(data);
+
                 if (data.user_role === '0') {
                     window.location.href = '/mentor-wait';
                 }
             })
             .catch(error => {
                 console.error('Error fetching user profile:', error);
-                setErrorMessage('Failed to fetch user profile');
-                
-            });
 
-    }, [navigate]);
+                if (error.response && error.response.status === 401) {
+                    window.location.href = '/login';
+                } else {
+                    window.location.href = '/login';
+                }
+            });
+    }, []);
     return (
         <div>
             {userProfile ? (
                 <div>
                     <h2>User Profile Details</h2>
-                    <p><strong>Profile Image:</strong> <br /><img alt="profile" style={{ border: '1px solid #ddd', borderRadius: '50%', width: '250px', height: '250px' }} src={userProfile.display_image} /> </p>
+                    <p><strong>Profile Image:</strong> <br /><img alt="profile" style={{ border: '1px solid #ddd', borderRadius: '50%', width: '250px', height: '250px' }} src={userProfile.profile.display_image} /> </p>
                     {/* <p>
                         <strong>Mentor Image:</strong>
                         <br />
                         <img src={`data:image/png;base64, ${userProfile.mentor_id_image_data}`} style={{ border: '1px solid #ddd', height: '250px' }} alt="Mentor ID" />
                     </p> */}
-                    <p><strong>Name:</strong> {userProfile.full_name}</p>
+                    <p><strong>Name:</strong> {userProfile.profile.full_name}</p>
                     <p><strong>Email:</strong> {userProfile.email}</p>
-                    <p><strong>College:</strong> {userProfile.college_name}</p>
-                    <p><strong>Course:</strong> {userProfile.community_id}</p>
+                    <p><strong>College:</strong> {userProfile.profile.college_name}</p>
+                    <p><strong>Course:</strong> {userProfile.profile.community_id}</p>
                 </div>
             ) : errorMessage ? (
                 <p style={{ color: 'red' }}>{errorMessage}</p>

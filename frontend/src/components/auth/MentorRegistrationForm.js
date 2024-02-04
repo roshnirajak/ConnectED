@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const StudentRegistrationForm = () => {
+  const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState('');
+  const [csrfCookie, setCsrfCookie] = useState('');
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
@@ -13,14 +18,8 @@ const StudentRegistrationForm = () => {
     previewImage: null,  //image preview
   });
 
-  const [errorMessage, setErrorMessage] = useState('');
 
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('q') === 'emailexists') {
-      setErrorMessage('Email already exists');
-    }
-  }, []);
+
 
   const isFnameValid = formData.full_name.length >= 3;
   const isEmailValid = formData.email.length >= 5;
@@ -38,7 +37,7 @@ const StudentRegistrationForm = () => {
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
+     const file = e.target.files && e.target.files[0]
   
     // Check if a file was selected
     if (!file) {
@@ -63,34 +62,79 @@ const StudentRegistrationForm = () => {
     setFormData({ ...formData, mentor_id_card: file, previewImage: URL.createObjectURL(file) });
     setErrorMessage(''); // Clear any previous error messages
   };
+  useEffect(() => {
+    const fetchCsrfCookie = async () => {
+      try {
+        // Fetch CSRF cookie from Django using Axios
+        const response = await axios.get('http://192.168.1.7:8000/csrf_cookie/', {
+          withCredentials: true, // Include credentials (cookies) in the request
+          headers: {
+            'Content-Type': 'application/json',  // Add any required headers here
+          },
+        });
+  
+        if (response.status === 200) {
+          // Extract CSRF token from the cookie
+          const csrfCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('csrftoken='))
+            .split('=')[1];
+  
+          // Use the csrfCookie value as needed
+          setCsrfCookie(csrfCookie)
+          console.log('CSRF token:', csrfCookie);
+  
+          // Once CSRF cookie is obtained, navigate to '/student-registration'
+        } else {
+          console.error('Failed to fetch CSRF cookie:', response.status);
+        }
+      } catch (error) {
+        console.error('Error during CSRF cookie fetch:', error);
+      }
+    };
+  
+    // Call the function to fetch CSRF cookie when the component mounts
+    fetchCsrfCookie();
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const formDataToSend = new FormData();
     formDataToSend.append('full_name', formData.full_name);
     formDataToSend.append('email', formData.email);
     formDataToSend.append('college_name', formData.college_name);
     formDataToSend.append('designation', formData.designation);
     formDataToSend.append('mentor_id_card', formData.mentor_id_card);
-    formDataToSend.append('community_id', formData.community_id);
+    formDataToSend.append('community_id', formData.community_id); // Include community_id
     formDataToSend.append('user_role', formData.user_role);
     formDataToSend.append('password', formData.password);
-
+  
     try {
-      const response = await fetch('http://localhost:8000/register/', {
-        method: 'POST',
-        body: formDataToSend,
+      // Send a POST request to your Django server
+      const response = await axios.post('http://192.168.1.7:8000/register/', formDataToSend, {
+        withCredentials: true, // Include credentials (cookies) in the request
+        headers: {
+          'Content-Type': 'multipart/form-data',  // Use multipart/form-data for file uploads
+          'X-CSRFToken': csrfCookie,
+        },
       });
-
-      const data = await response.json();
-      console.log(data);  // Handle the response as needed, maybe redirect to the login page
-      window.location.href = '/login';
+  
+      if (response.status === 200) {
+        // Mentor registration successful
+        console.log('Mentor registration successful!');
+        navigate('/login'); // Redirect to login page
+      } else {
+        console.error('Mentor registration failed:', response.status);
+        setErrorMessage('Mentor registration failed. Please try again.'); // Set an error message for the user
+      }
     } catch (error) {
-      setErrorMessage('Email Exists');
-      console.error('Error during registration:', error);
+      console.error('Error during mentor registration:', error);
+      setErrorMessage('Mentor registration failed. Please try again.'); // Set an error message for the user
     }
   };
+  
+  
 
   return (
     <form onSubmit={handleSubmit}>

@@ -13,7 +13,6 @@ import AdminMiddleware from './components/middleware/AdminMiddleware';
 import MentorWaitPage from './components/message/MentorWaitPage';
 import MentorTable from './components/admin/MentorApprovalPage';
 import MentorDetailsPage from './components/admin/MentorDetailsPage';
-import CSRFToken from './components/auth/CSRFToken';
 const App = () => {
   const AdminProtectedMentorTable = AdminMiddleware(MentorTable);
 
@@ -26,7 +25,6 @@ const App = () => {
         <Route path="/mentor-registration" element={<MentorRegistrationForm />} />
         <Route path="/login" element={<LoginForm />} />
 
-        <Route path="/csrf" element={<CSRFToken />} />
 
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/homepage" element={<HomePage />} />
