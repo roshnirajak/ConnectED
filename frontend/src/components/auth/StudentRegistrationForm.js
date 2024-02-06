@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 
@@ -38,7 +38,7 @@ const StudentRegistrationForm = () => {
         const response = await axios.get('http://192.168.1.7:8000/csrf_cookie/', {
           withCredentials: true, // Include credentials (cookies) in the request
           headers: {
-            'Content-Type': 'application/json',  // Add any required headers here
+            'Content-Type': 'application/json',  
           },
         });
   
@@ -48,12 +48,9 @@ const StudentRegistrationForm = () => {
             .split('; ')
             .find(row => row.startsWith('csrftoken='))
             .split('=')[1];
-  
-          // Use the csrfCookie value as needed
+
           setCsrfCookie(csrfCookie)
           console.log('CSRF token:', csrfCookie);
-  
-          // Once CSRF cookie is obtained, navigate to '/student-registration'
         } else {
           console.error('Failed to fetch CSRF cookie:', response.status);
         }
@@ -62,7 +59,7 @@ const StudentRegistrationForm = () => {
       }
     };
   
-    // Call the function to fetch CSRF cookie when the component mounts
+    // Call the function to fetch CSRF cookie 
     fetchCsrfCookie();
   }, [navigate]);
 
@@ -90,13 +87,13 @@ const StudentRegistrationForm = () => {
         // Registration successful
         console.log('Registration successful!');
         navigate('/login'); // Redirect to login page
-      } else {
+      }else{
         console.error('Registration failed:', response.status);
-        setErrorMessage('Registration failed. Please try again.'); // Set an error message for the user
+        setErrorMessage('Registration failed. Please try again.');
       }
     } catch (error) {
       console.error('Error during registration:', error);
-      setErrorMessage('Registration failed. Please try again.'); // Set an error message for the user
+      setErrorMessage("Email Exists");  
     }
   };
   return (

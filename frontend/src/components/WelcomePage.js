@@ -1,9 +1,17 @@
 // HomePage.js
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import Cookies from 'js-cookie';
 import '../App.css'
-const WelcomePage = () => {
 
+
+const WelcomePage = () => {
+useEffect=()=>{
+    const email = Cookies.get('email');
+    if(email){
+        window.location.href='/homepage'
+    }
+}
     return (
         <div className="welcome-container">
             <div className="logo-container">

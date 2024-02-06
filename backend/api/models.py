@@ -24,12 +24,12 @@ class UserProfile(AbstractBaseUser):
     email =         models.EmailField(unique=True)
     college_name =  models.CharField(max_length=225)
     designation =  models.CharField(max_length=225) 
-    community_id =  models.SmallIntegerField()      #1:BBA 2:BCA, 3:BCom, 4:BCom Hons   
+    community_id =  models.SmallIntegerField()                  # 1:BCA, 2:BCom, 3:BCom Hons 4:BBA   
     display_image = models.CharField(max_length=255)            #image url
     rank =          models.CharField(max_length=2)              #1:gold, 2:silver, 3:bronze
     password =      models.CharField(max_length=225)
     created_at =    models.DateTimeField(auto_now_add=True)     #timestamp
-    user_role =     models.CharField(max_length=2)    #0:!verified_mentor 1:verified_mentor 2:student
+    user_role =     models.CharField(max_length=2)          #0:!verified_mentor 1:verified_mentor 2:student
     mentor_id_card = models.ImageField(upload_to='uploads/mentor_id', null=True, blank=True) #image path
     report_count=   models.SmallIntegerField(default=0)
 
@@ -67,6 +67,7 @@ class Question(models.Model):
     subject= models.CharField(max_length=200)
     report_count= models.SmallIntegerField(default=0)
     community_id= models.SmallIntegerField()  
+    is_active= models.BooleanField(default=True)
 
     def __str__(self):
         return self.question_id
@@ -76,11 +77,12 @@ class Answer(models.Model):
     question_id= models.IntegerField()  
     answer_content= models.CharField(max_length=255)
     answer_user= models.IntegerField()
-    upvotes= models.IntegerField()
-    downvotes= models.IntegerField()
+    upvotes= models.IntegerField(default=0)
+    downvotes= models.IntegerField(default=0)
     created_at= models.DateTimeField(auto_now_add=True)
-    report_count= models.SmallIntegerField()
+    report_count= models.SmallIntegerField(default=0)
     community_id= models.SmallIntegerField()  
+    is_active= models.BooleanField(default=True)
 
     def __str__(self):
         return self.answer_id
@@ -92,6 +94,7 @@ class Conversation(models.Model):
     approval_status= models.CharField(max_length=100)
     timestamp= models.DateTimeField(auto_now_add=True)
     community_id= models.SmallIntegerField() 
+    is_active= models.BooleanField(default=True)
 
     def __str__(self):
         return self.conversation_id 
@@ -102,6 +105,7 @@ class Messages(models.Model):
     content= models.CharField(max_length=255)
     timestamp= models.DateTimeField(auto_now_add=True)
     community_id= models.SmallIntegerField()  
+    is_active= models.BooleanField(default=True)
 
     def __str__(self):
         return self.message_id

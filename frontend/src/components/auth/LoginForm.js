@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
+import Cookies from 'js-cookie';
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -73,14 +72,16 @@ const LoginForm = () => {
   
       if (response.status === 200) {
         // Login successful
+        // Cookies.set('email', formData.email, { expires: 14 });
         console.log('Login successful!');
-        window.location.href='/profile';
+        window.location.href='/homepage';
       } else {
         console.error('Login failed:', response.status);
         setErrorMessage('Login failed. Please try again.'); // Set an error message for the user
       }
     } catch (error) {
       console.error('Error during login:', error);
+      setErrorMessage('Login failed. Please try again.');
     }
   };
   return (

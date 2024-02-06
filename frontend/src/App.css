@@ -43,3 +43,133 @@ body{
   margin: 20px 0;
   font-size: small;
 }
+
+
+/* styles.css or your preferred stylesheet */
+
+.home-page-container {
+  padding: 20px;
+  background-color: #f8f8f8;
+}
+
+.question-container {
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin-bottom: 15px;
+  background-color: #fff;
+}
+
+.question-content {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.question-user {
+  margin-top: 8px;
+  font-size: 16px;
+}
+
+.flag-icon {
+  color: #ff0000;
+  margin-right: 5px;
+  float:right;
+}
+
+.pagination-container {
+  margin-top: 15px;
+}
+
+.pagination-info {
+  font-size: 14px;
+}
+
+.pagination-button {
+  margin-right: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+}
+
+.profile-button,
+.add-question-button {
+  margin-top: 15px;
+  padding: 10px;
+  cursor: pointer;
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+}
+
+
+
+
+
+.loading-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.question-box {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.question {
+  margin-bottom: 20px;
+}
+
+.question h1 {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.question p {
+  font-size: 16px;
+}
+
+.answers {
+  margin-top: 20px;
+}
+
+.answers h2 {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.answer {
+  margin-bottom: 10px;
+}
+
+.answer-box {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.answer p {
+  font-size: 16px;
+}
+
+.button-container {
+  margin-top: 20px;
+}
+
+.button-container button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.button-container button:hover {
+  background-color: #0056b3;
+}

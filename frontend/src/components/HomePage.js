@@ -1,53 +1,66 @@
-// HomePage.js
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faFlag } from '@fortawesome/free-solid-svg-icons'
+
+const PageSize = 10; // Number of items to display per page
 
 const HomePage = () => {
-    const navigate = useNavigate();
-    const [userProfile, setUserProfile] = useState(null);
-    const [errorMessage, setErrorMessage] = useState('');
+    const [data, setData] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+
     useEffect(() => {
-        // Check if the user is authenticated by checking the session
-        const userEmail = Cookies.get('email');
+        const fetchData = async () => {
+            try {
+                const response = await axios.get(`http://192.168.1.7:8000/get-question/?page=${currentPage}`);
+                setData(response.data.questions);
+                setTotalPages(response.data.total_pages);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
 
-        // Access the user's email from the cookie
-        fetch(`http://192.168.1.7:8000/api/get_user_profile/?email=${encodeURIComponent(userEmail)}`)
-            .then(response => {
-                if (!response.ok) {
-                    window.location.href = '/login';
-                    throw new Error('Failed to fetch HomePage');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('User profile data:', data);
-                setUserProfile(data);
-            })
-            .catch(error => {
-                console.error('Error fetching Homepage:', error);
-            });
+        fetchData();
+    }, [currentPage]);
 
-    }, [navigate]);
+    const handlePageChange = (newPage) => {
+        setCurrentPage(newPage);
+    };
+
     return (
-        <div>
-
-            {userProfile ? (
-                <div>
-                    <h2>This is HomePage: {userProfile.full_name}</h2>
-                    <Link to={'/profile/'}>Profile</Link><br />
-                    <Link to={'/add-question/'}>Add Question</Link>
+        <div className="home-page-container">
+            <h2>Home Page</h2>
+            {data.map((item) => (
+                <div key={item.question_id} className="question-container">
+                    <span className="question-content">{item.question_content}</span><br />
+                    <span className="question-user">{item.user_full_name}</span>
+                    <br />
+                    <FontAwesomeIcon icon={faFlag} className="flag-icon" />
+                    <Link to={`/question-detail/${item.question_id}`}>
+                        <button>{item.answer_count} Answer</button>
+                    </Link>
                 </div>
-            ) : errorMessage ? (
-                <p style={{ color: 'red' }}>{errorMessage}</p>
-            ) : (
-                <div className="loading-spinner">Loading...</div>
-            )}
-
-
+            ))}
+            <div className="pagination-container">
+                <span className="pagination-info">Page {currentPage} of {totalPages}</span> <br />
+                {Array.from({ length: totalPages }, (_, index) => (
+                    <button key={index + 1} onClick={() => handlePageChange(index + 1)} className="pagination-button">
+                        {index + 1}
+                    </button>
+                ))}
+            </div>
+            <Link to="/profile">
+                <button className="profile-button">Profile</button>
+            </Link>
+            <Link to="/add-question">
+                <button className="add-question-button">Add Question</button>
+            </Link>
         </div>
+
     );
 };
 
 export default HomePage;
+

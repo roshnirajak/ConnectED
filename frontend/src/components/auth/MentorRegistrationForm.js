@@ -20,7 +20,7 @@ const StudentRegistrationForm = () => {
 
 
 
-
+  // Check Valid Form``
   const isFnameValid = formData.full_name.length >= 3;
   const isEmailValid = formData.email.length >= 5;
   const isDesignationValid = formData.designation.length >= 3;
@@ -31,6 +31,8 @@ const StudentRegistrationForm = () => {
   ['image/jpeg', 'image/png'].includes(formData.mentor_id_card.type);
 
   const isFormValid = isFnameValid && isEmailValid && isDesignationValid && isPasswordValid && isImageValid;
+
+
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -62,6 +64,8 @@ const StudentRegistrationForm = () => {
     setFormData({ ...formData, mentor_id_card: file, previewImage: URL.createObjectURL(file) });
     setErrorMessage(''); // Clear any previous error messages
   };
+
+
   useEffect(() => {
     const fetchCsrfCookie = async () => {
       try {
@@ -69,7 +73,7 @@ const StudentRegistrationForm = () => {
         const response = await axios.get('http://192.168.1.7:8000/csrf_cookie/', {
           withCredentials: true, // Include credentials (cookies) in the request
           headers: {
-            'Content-Type': 'application/json',  // Add any required headers here
+            'Content-Type': 'application/json', 
           },
         });
   
@@ -79,12 +83,9 @@ const StudentRegistrationForm = () => {
             .split('; ')
             .find(row => row.startsWith('csrftoken='))
             .split('=')[1];
-  
-          // Use the csrfCookie value as needed
+
           setCsrfCookie(csrfCookie)
           console.log('CSRF token:', csrfCookie);
-  
-          // Once CSRF cookie is obtained, navigate to '/student-registration'
         } else {
           console.error('Failed to fetch CSRF cookie:', response.status);
         }
@@ -93,7 +94,7 @@ const StudentRegistrationForm = () => {
       }
     };
   
-    // Call the function to fetch CSRF cookie when the component mounts
+    // Call the function to fetch CSRF cookie 
     fetchCsrfCookie();
   }, [navigate]);
 
@@ -125,12 +126,10 @@ const StudentRegistrationForm = () => {
         console.log('Mentor registration successful!');
         navigate('/login'); // Redirect to login page
       } else {
-        console.error('Mentor registration failed:', response.status);
-        setErrorMessage('Mentor registration failed. Please try again.'); // Set an error message for the user
+        setErrorMessage('Mentor registration failed. Please try again.'); 
       }
     } catch (error) {
-      console.error('Error during mentor registration:', error);
-      setErrorMessage('Mentor registration failed. Please try again.'); // Set an error message for the user
+      setErrorMessage('Email Exists'); 
     }
   };
   

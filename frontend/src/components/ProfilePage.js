@@ -1,13 +1,10 @@
-// HomePage.js
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 
 const ProfilePage = () => {
-    const navigate = useNavigate();
     const [userProfile, setUserProfile] = useState(null);
-    const [errorMessage, setErrorMessage] = useState('');
     useEffect(() => {
         const sessionId = Cookies.get('sessionid');
         const csrfToken = Cookies.get('csrftoken');
@@ -45,7 +42,18 @@ const ProfilePage = () => {
             {userProfile ? (
                 <div>
                     <h2>User Profile Details</h2>
-                    <p><strong>Profile Image:</strong> <br /><img alt="profile" style={{ border: '1px solid #ddd', borderRadius: '50%', width: '250px', height: '250px' }} src={userProfile.profile.display_image} /> </p>
+                    <p><strong>Profile Image:</strong> <br />
+                        <img
+                            alt="profile"
+                            style={{
+                                border: `1px solid ${userProfile.profile.user_role === '1' ? 'blue' : '#ddd'}`,
+                                borderRadius: '50%',
+                                width: '250px',
+                                height: '250px'
+                            }}
+                            src={userProfile.profile.display_image}
+                        />
+                    </p>
                     {/* <p>
                         <strong>Mentor Image:</strong>
                         <br />
@@ -54,13 +62,21 @@ const ProfilePage = () => {
                     <p><strong>Name:</strong> {userProfile.profile.full_name}</p>
                     <p><strong>Email:</strong> {userProfile.email}</p>
                     <p><strong>College:</strong> {userProfile.profile.college_name}</p>
-                    <p><strong>Course:</strong> {userProfile.profile.community_id}</p>
+                    <p><strong>Course:</strong>
+                        {userProfile.profile.community_id === 1 ? 'BCA' :
+                            userProfile.profile.community_id === 2 ? 'BCom' :
+                                userProfile.profile.community_id === 3 ? 'BCom Hons' :
+                                    userProfile.profile.community_id === 4 ? 'BBA' :
+                                        'Unknown Course'}
+                    </p>
+
                 </div>
-            ) : errorMessage ? (
-                <p style={{ color: 'red' }}>{errorMessage}</p>
             ) : (
                 <p>Loading...</p>
             )}
+            <Link to="/homepage">
+                <button className="register-button">Homepage</button>
+            </Link>
         </div>
     );
 };

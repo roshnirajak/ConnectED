@@ -9,12 +9,12 @@ import LoginForm from './components/auth/LoginForm';
 import ProfilePage from './components/ProfilePage';
 import HomePage from './components/HomePage';
 import AddQuestion from './components/AddQuestion';
-import AdminMiddleware from './components/middleware/AdminMiddleware';
+import AddAnswer from './components/AddAnswer';
+import QuestionDetail from './components/QuestionDetail';
 import MentorWaitPage from './components/message/MentorWaitPage';
 import MentorTable from './components/admin/MentorApprovalPage';
 import MentorDetailsPage from './components/admin/MentorDetailsPage';
 const App = () => {
-  const AdminProtectedMentorTable = AdminMiddleware(MentorTable);
 
   return (
     <BrowserRouter> {/* Ensure the useNavigate hook is inside BrowserRouter */}
@@ -29,10 +29,11 @@ const App = () => {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/homepage" element={<HomePage />} />
         <Route path="/add-question" element={<AddQuestion />} />
+        <Route path="/add-answer/:questionId" element={<AddAnswer />} />
+        <Route path="/question-detail/:questionId" element={<QuestionDetail />} />
 
         <Route path="/mentor-wait" element={<MentorWaitPage />} />
 
-        <Route path="/admin/mentor-verify" element={<AdminProtectedMentorTable />} />
         <Route path="/admin/mentor-details" element={<MentorDetailsPage />} />
         {/* <Route path="/admin/mentor-verify/detail/:id" element={<MentorDetailsPage/>} /> */}
       </Routes>
