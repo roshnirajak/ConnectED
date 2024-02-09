@@ -14,25 +14,8 @@ const HomePage = () => {
     const [hasNewNotification, setHasNewNotification] = useState(false);
 
     useEffect(() => {
-
-        const fetchNotifications = async () => {
-            try {
-              const response = await axios.get('http://169.254.37.113:8000/user-notifications/', {
-                withCredentials: true
-              });
-              const notifications = response.data.notifications;
-              setHasNewNotification(notifications.length > 0);
-            } catch (error) {
-              console.error('Error fetching notifications:', error);
-            }
-          };
-      
-          fetchNotifications();
-
-
         const fetchData = async () => {
-            
-        const csrfToken = Cookies.get('csrftoken')
+            const csrfToken = Cookies.get('csrftoken');
             try {
                 const response = await axios.get(`http://169.254.37.113:8000/question/get-question/?page=${currentPage}`, {
                     withCredentials: true,
@@ -49,6 +32,12 @@ const HomePage = () => {
         };
 
         fetchData();
+
+        // Refresh data every 2 seconds
+        const intervalId = setInterval(fetchData, 100000);
+
+        // Cleanup function to clear interval when component unmounts
+        return () => clearInterval(intervalId);
     }, [currentPage]);
 
     const handlePageChange = (newPage) => {
@@ -60,10 +49,34 @@ const HomePage = () => {
             <h2>Home Page</h2>
             {data.map((item) => (
                 <div key={item.question_id} className="question-container">
+
                     <span className="question-content">{item.question_content}</span><br />
-                    <span className="question-user">{item.user_full_name}</span>
+
+                    {item.self_user ? (
+                        <React.Fragment>
+                            <img alt="profile" style={{
+                                height: '25px',
+                                width: '25px',
+                                border: `1px solid ${item.user_role === '1' ? 'blue' : '#ddd'}`,
+                                borderRadius: '50%',
+                            }} src={`${item.display_image}&size=25`} />
+                            <span className="question-user">{item.user_full_name}</span>
+                        </React.Fragment>
+                    ) : (
+                        <Link to={`/friend-profile/${item.question_user}`}>
+                            <img alt="profile" style={{
+                                height: '25px',
+                                width: '25px',
+                                border: `1px solid ${item.user_role === '1' ? 'blue' : '#ddd'}`,
+                                borderRadius: '50%',
+                            }} src={`${item.display_image}&size=25`} />
+                            <span className="question-user">{item.user_full_name}</span>
+                        </Link>
+                    )}
+
                     <br />
                     <FontAwesomeIcon icon={faFlag} className="flag-icon" />
+
                     <Link to={`/question-detail/${item.question_id}`}>
                         <button>{item.answer_count} Answer</button>
                     </Link>
@@ -84,10 +97,9 @@ const HomePage = () => {
                 <button className="add-question-button">Add Question</button>
             </Link>
             <Link to="/notifications">
-                
+
                 <button className="add-question-button">
                     Notifications
-                    {hasNewNotification && <span className="notification-badge"></span>}
                 </button>
             </Link>
         </div>
@@ -96,4 +108,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-
