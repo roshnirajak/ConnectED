@@ -10,6 +10,11 @@ const WelcomePage = () => {
     const navigate = useNavigate();
     const [csrfToken, setCsrfToken] = useState('');
 
+    useEffect(() => {
+        if (Cookies.get('email')) {
+            navigate('/homepage');
+        }
+    }, []);  
 
     const fetchCsrfCookie = async () => {
         try {
@@ -52,7 +57,7 @@ const WelcomePage = () => {
     const handleRedirectStudentReg = () => {
         fetchCsrfCookie();
         navigate('/student-registration');
-    };   const handleRedirectMentorReg = () => {
+    }; const handleRedirectMentorReg = () => {
         fetchCsrfCookie();
         navigate('/mentor-registration');
     };
@@ -63,12 +68,12 @@ const WelcomePage = () => {
             </div>
             <h1 className="welcome-heading">Welcome to the Connect<span>ED</span>!</h1>
             <div className="button-container">
-               
-                    <button onClick={handleRedirectStudentReg} className="register-button">Register as Student</button>
-                
-               
-                    <button onClick={handleRedirectMentorReg} className="register-button">Register as Mentor</button>
-           
+
+                <button onClick={handleRedirectStudentReg} className="register-button">Register as Student</button>
+
+
+                <button onClick={handleRedirectMentorReg} className="register-button">Register as Mentor</button>
+
             </div>
             <button onClick={handleRedirectLogin}>Go to Login</button>
         </div>

@@ -8,6 +8,7 @@ from api.views import (
     LogoutView,
     DeactivateAccountView,  
     GetUserProfileView,
+    GetFriendProfileView,
     GetUser,
     UpdateUserProfileView,
     UpdatePasswordView,
@@ -16,7 +17,12 @@ from api.views import (
     get_all_mentors,
     verify_mentor,
 )
+from . import consumers
 
+
+websocket_urlpatterns = [
+    path('ws/questions/', consumers.QuestionConsumer.as_asgi()),
+]
 urlpatterns = [
     path("admin/", admin.site.urls),
 
@@ -27,6 +33,7 @@ urlpatterns = [
     path('delete/', DeactivateAccountView.as_view()),
     path("csrf_cookie/", GetCSRFToken.as_view()),
     path('user-profile/', GetUserProfileView.as_view()),
+    path('friend-profile/<int:user_id>', GetFriendProfileView.as_view()),
     path('user-notifications/', NotificationView.as_view()),
 
     path('question/', include('question.urls')),

@@ -38,7 +38,7 @@ const LoginForm = () => {
   
       if (response.status === 200) {
         // Login successful
-        // Cookies.set('email', formData.email, { expires: 14 });
+        Cookies.set('email', formData.email, { expires: 14 });
         console.log('Login successful!');
         window.location.href='/homepage';
       } else {

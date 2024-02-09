@@ -288,9 +288,37 @@ class NotificationView(APIView):
 
 
 
+@method_decorator(csrf_protect, name="dispatch")
+class GetFriendProfileView(APIView):
+    def get(self, request, user_id, format=None):
 
-
-
+        try:
+            user_profile = UserProfile.objects.get(user_id=user_id)
+            serialized_data = {
+                "user_id": user_profile.user_id,
+                "full_name": user_profile.full_name,
+                "email": user_profile.email,
+                "college_name": user_profile.college_name,
+                "designation": user_profile.designation,
+                "community_id": user_profile.community_id,
+                "display_image": user_profile.display_image,
+                "user_role": user_profile.user_role,
+                "created_at": user_profile.created_at,
+            }
+            if user_profile.mentor_id_card:
+                image_data = user_profile.mentor_id_card.read()
+                base64_data = base64.b64encode(image_data).decode("utf-8")
+                serialized_data["mentor_id_card_data"] = base64_data
+            return Response({"profile": serialized_data, "email": str(user_profile.email)})
+        except UserProfile.DoesNotExist:
+            return Response(
+                {"error": "User profile not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"error": f"Something went wrong when retrieving profile: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 def get_all_mentors(request):
     if request.method == "GET":
         # Filter mentors with user_role 0 or 1

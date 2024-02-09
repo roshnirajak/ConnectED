@@ -23,8 +23,9 @@ class PaginatedQuestionsView(View):
 
         # Filter questions based on the user's community_id
         user_profile = UserProfile.objects.get(email=request.user)
-        user_community_id = user_profile.community_id
-        questions = Question.objects.filter(community_id=user_community_id).order_by('-created_at')
+        current_user_community_id = user_profile.community_id
+        current_user_id= user_profile.user_id
+        questions = Question.objects.filter(community_id=current_user_community_id).order_by('-created_at')
 
         paginator = Paginator(questions, page_size)
 
@@ -41,9 +42,13 @@ class PaginatedQuestionsView(View):
 
             question_data = {
                 "question_id": question.question_id,
+                "question_user":question.question_user,
                 "question_content": question.question_content,
                 "user_full_name": user_profile.full_name,
+                "display_image": user_profile.display_image,
+                "user_role":user_profile.user_role,
                 "answer_count": answer_count,
+                "self_user" : current_user_id == question.question_user
             }
 
             questions_data.append(question_data)
@@ -58,6 +63,9 @@ class PaginatedQuestionsView(View):
 class QuestionDetailView(View):
     def get(self, request, question_id, *args, **kwargs):
         try:
+            current_user_profile = UserProfile.objects.get(email=request.user)
+            current_user_id= current_user_profile.user_id
+
             # Retrieve the question
             question = Question.objects.get(question_id=question_id)
             
@@ -70,19 +78,25 @@ class QuestionDetailView(View):
             # Prepare data for the response
             question_data = {
                 "question_id": question.question_id,
+                "question_user":question.question_user,
                 "question_content": question.question_content,
                 "user_full_name": user_profile.full_name,
+                "display_image":user_profile.display_image,
                 "created_at": question.created_at,
+                "self_user" : current_user_id == question.question_user,
                 "answers": [
                     {
                         "answer_id": answer.answer_id,
+                        "answer_user":answer.answer_user,
                         "answer_content": answer.answer_content,
                         "user_full_name": UserProfile.objects.get(user_id=answer.answer_user).full_name,
+                        "display_image":UserProfile.objects.get(user_id=answer.answer_user).display_image,
                         "upvotes": answer.upvotes,
                         "downvotes": answer.downvotes,
                         "created_at": answer.created_at,
                         "user_liked": request.user in answer.liked_by.all(),
                         "user_disliked": request.user in answer.disliked_by.all(),
+                        "self_user" : current_user_id == answer.answer_user
                     }
                     for answer in answers
                 ]
