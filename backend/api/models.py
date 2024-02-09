@@ -3,6 +3,8 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.crypto import get_random_string
+from djongo import models
+from djongo.models.fields import ArrayField
 
 class UserProfileManager(BaseUserManager):
     def create_user(self, email, full_name, password=None, **extra_fields):
@@ -83,6 +85,8 @@ class Answer(models.Model):
     report_count= models.SmallIntegerField(default=0)
     community_id= models.SmallIntegerField()  
     is_active= models.BooleanField(default=True)
+    liked_by = models.ManyToManyField(UserProfile, blank=True, related_name="user_liked")
+    disliked_by = models.ManyToManyField(UserProfile, blank=True, related_name="user_disliked")
 
     def __str__(self):
         return self.answer_id
@@ -109,3 +113,10 @@ class Messages(models.Model):
 
     def __str__(self):
         return self.message_id
+    
+
+class Notification(models.Model):
+    notified_user = models.IntegerField()
+    message = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_active= models.BooleanField(default=True)

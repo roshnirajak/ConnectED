@@ -10,7 +10,7 @@ const ProfilePage = () => {
         const csrfToken = Cookies.get('csrftoken');
         console.log(csrfToken);
         console.log(sessionId);
-        axios.get('http://192.168.1.7:8000/user-profile/', {
+        axios.get('http://169.254.37.113:8000/user-profile/', {
             withCredentials: true,
             // headers: {
             //     'Content-Type': 'application/json',

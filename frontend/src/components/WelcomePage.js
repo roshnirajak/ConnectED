@@ -1,17 +1,61 @@
 // HomePage.js
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import '../App.css'
-
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const WelcomePage = () => {
-useEffect=()=>{
-    const email = Cookies.get('email');
-    if(email){
-        window.location.href='/homepage'
-    }
-}
+    const navigate = useNavigate();
+    const [csrfToken, setCsrfToken] = useState('');
+
+
+    const fetchCsrfCookie = async () => {
+        try {
+            // Fetch CSRF cookie from Django using Axios
+            const response = await axios.get('http://169.254.37.113:8000/csrf_cookie/', {
+                withCredentials: true, // Include credentials (cookies) in the request
+                headers: {
+                    'Content-Type': 'application/json',  // Add any required headers here
+                },
+            });
+
+            if (response.status === 200) {
+                // Extract CSRF token from the cookie
+                const csrfToken = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('csrftoken='))
+                    .split('=')[1];
+
+                // Use the csrfCookie value as needed
+                setCsrfToken(csrfToken)
+                console.log('CSRF token:', csrfToken);
+
+                // Once CSRF cookie is obtained, navigate to '/student-registration'
+            } else {
+                console.error('Failed to fetch CSRF cookie:', response.status);
+            }
+        } catch (error) {
+            console.error('Error during CSRF cookie fetch:', error);
+        }
+    };
+
+    // Call the function to fetch CSRF cookie when the component mounts
+
+
+
+    const handleRedirectLogin = () => {
+        fetchCsrfCookie();
+        navigate('/login');
+    };
+    const handleRedirectStudentReg = () => {
+        fetchCsrfCookie();
+        navigate('/student-registration');
+    };   const handleRedirectMentorReg = () => {
+        fetchCsrfCookie();
+        navigate('/mentor-registration');
+    };
     return (
         <div className="welcome-container">
             <div className="logo-container">
@@ -19,16 +63,14 @@ useEffect=()=>{
             </div>
             <h1 className="welcome-heading">Welcome to the Connect<span>ED</span>!</h1>
             <div className="button-container">
-                <Link to="/student-registration">
-                    <button className="register-button">Register as Student</button>
-                </Link>
-                <Link to="/mentor-registration">
-                    <button className="register-button">Register as Mentor</button>
-                </Link>
+               
+                    <button onClick={handleRedirectStudentReg} className="register-button">Register as Student</button>
+                
+               
+                    <button onClick={handleRedirectMentorReg} className="register-button">Register as Mentor</button>
+           
             </div>
-            <p className="login-now-text">
-                Already Have an Account?<span> <Link to="/login">Login Now</Link> </span>
-            </p>
+            <button onClick={handleRedirectLogin}>Go to Login</button>
         </div>
     );
 };

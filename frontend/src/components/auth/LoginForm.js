@@ -5,46 +5,12 @@ import Cookies from 'js-cookie';
 
 const LoginForm = () => {
   const navigate = useNavigate();
-  const [csrfToken, setCsrfToken] = useState('');
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
   const [errorMessage, setErrorMessage] = useState('');
-  useEffect(() => {
-    const fetchCsrfCookie = async () => {
-      try {
-        // Fetch CSRF cookie from Django using Axios
-        const response = await axios.get('http://192.168.1.7:8000/csrf_cookie/', {
-          withCredentials: true, // Include credentials (cookies) in the request
-          headers: {
-            'Content-Type': 'application/json',  // Add any required headers here
-          },
-        });
-  
-        if (response.status === 200) {
-          // Extract CSRF token from the cookie
-          const csrfToken = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('csrftoken='))
-            .split('=')[1];
-  
-          // Use the csrfCookie value as needed
-          setCsrfToken(csrfToken)
-          console.log('CSRF token:', csrfToken);
-  
-          // Once CSRF cookie is obtained, navigate to '/student-registration'
-        } else {
-          console.error('Failed to fetch CSRF cookie:', response.status);
-        }
-      } catch (error) {
-        console.error('Error during CSRF cookie fetch:', error);
-      }
-    };
-  
-    // Call the function to fetch CSRF cookie when the component mounts
-    fetchCsrfCookie();
-  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({
@@ -56,10 +22,10 @@ const LoginForm = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     console.log(formData);
-  
+    const csrfToken= Cookies.get('csrftoken')
     try {
       const response = await axios.post(
-        'http://192.168.1.7:8000/login/',
+        'http://169.254.37.113:8000/login/',
         JSON.stringify(formData), // Move the data object here
         {
           withCredentials:true,

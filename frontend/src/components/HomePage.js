@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import Cookies from 'js-cookie';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFlag } from '@fortawesome/free-solid-svg-icons'
 
@@ -10,11 +11,36 @@ const HomePage = () => {
     const [data, setData] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [hasNewNotification, setHasNewNotification] = useState(false);
 
     useEffect(() => {
-        const fetchData = async () => {
+
+        const fetchNotifications = async () => {
             try {
-                const response = await axios.get(`http://192.168.1.7:8000/get-question/?page=${currentPage}`);
+              const response = await axios.get('http://169.254.37.113:8000/user-notifications/', {
+                withCredentials: true
+              });
+              const notifications = response.data.notifications;
+              setHasNewNotification(notifications.length > 0);
+            } catch (error) {
+              console.error('Error fetching notifications:', error);
+            }
+          };
+      
+          fetchNotifications();
+
+
+        const fetchData = async () => {
+            
+        const csrfToken = Cookies.get('csrftoken')
+            try {
+                const response = await axios.get(`http://169.254.37.113:8000/question/get-question/?page=${currentPage}`, {
+                    withCredentials: true,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    }
+                });
                 setData(response.data.questions);
                 setTotalPages(response.data.total_pages);
             } catch (error) {
@@ -56,6 +82,13 @@ const HomePage = () => {
             </Link>
             <Link to="/add-question">
                 <button className="add-question-button">Add Question</button>
+            </Link>
+            <Link to="/notifications">
+                
+                <button className="add-question-button">
+                    Notifications
+                    {hasNewNotification && <span className="notification-badge"></span>}
+                </button>
             </Link>
         </div>
 

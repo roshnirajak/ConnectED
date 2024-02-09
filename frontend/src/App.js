@@ -10,6 +10,9 @@ import ProfilePage from './components/ProfilePage';
 import HomePage from './components/HomePage';
 import AddQuestion from './components/AddQuestion';
 import AddAnswer from './components/AddAnswer';
+
+import NotificationList from './components/Notifications';
+
 import QuestionDetail from './components/QuestionDetail';
 import MentorWaitPage from './components/message/MentorWaitPage';
 import MentorTable from './components/admin/MentorApprovalPage';
@@ -31,6 +34,8 @@ const App = () => {
         <Route path="/add-question" element={<AddQuestion />} />
         <Route path="/add-answer/:questionId" element={<AddAnswer />} />
         <Route path="/question-detail/:questionId" element={<QuestionDetail />} />
+        
+        <Route path="/notifications" element={<NotificationList />} />
 
         <Route path="/mentor-wait" element={<MentorWaitPage />} />
 

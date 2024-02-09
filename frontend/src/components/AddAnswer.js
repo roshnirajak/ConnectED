@@ -1,50 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 const AddAnswer = () => {
-    const [csrfToken, setCsrfToken] = useState('');
+    const navigate= useNavigate();
     const [answerContent, setAnswerContent] = useState('');
     const { questionId } = useParams();
     const [errorMessage, setErrorMessage] = useState('');
 
-    useEffect(() => {
-        const fetchCsrfCookie = async () => {
-            try {
-                const response = await axios.get('http://192.168.1.7:8000/csrf_cookie/', {
-                    withCredentials: true,
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-
-                if (response.status === 200) {
-                    const csrfCookie = document.cookie
-                        .split('; ')
-                        .find(row => row.startsWith('csrftoken='))
-                        .split('=')[1];
-
-                    setCsrfToken(csrfCookie);
-                    console.log('CSRF token:', csrfCookie);
-                } else {
-                    console.error('Failed to fetch CSRF cookie:', response.status);
-                }
-            } catch (error) {
-                console.error('Error during CSRF cookie fetch:', error);
-            }
-        };
-
-        fetchCsrfCookie();
-    }, []);
-
     const handleAddAnswer = async () => {
+
+        const csrfToken = Cookies.get('csrftoken')
         try {
             if (answerContent.length <= 20 || answerContent.length > 255) {
                 setErrorMessage('Answer content must be between 20 and 255 characters.');
                 return;
             }
             const response = await axios.post(
-                `http://192.168.1.7:8000/add-answer/${questionId}`,
+                `http://169.254.37.113:8000/question/add-answer/${questionId}`,
                 {
                     answer_content: answerContent,
                     question_id: questionId,
@@ -60,7 +34,7 @@ const AddAnswer = () => {
 
             console.log(response.data);
             setErrorMessage('');
-            window.location.href=`/question-detail/${questionId}`
+            navigate(-1);
         } catch (error) {
             console.error('Error adding answer:', error);
             setErrorMessage('Your answer is quite offensive.');

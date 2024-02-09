@@ -173,3 +173,16 @@ body{
 .button-container button:hover {
   background-color: #0056b3;
 }
+
+
+
+
+.notification-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 50%;
+}

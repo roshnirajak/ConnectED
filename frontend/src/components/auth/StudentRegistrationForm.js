@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 
 const StudentRegistrationForm = () => {
@@ -14,11 +15,10 @@ const StudentRegistrationForm = () => {
     password: ''
   });
 
-  
+
 
   // const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [csrfCookie, setCsrfCookie] = useState('');
 
   const isFnameValid = formData.full_name.length >= 3;
   const isEmailValid = formData.email.length >= 5;
@@ -29,71 +29,36 @@ const StudentRegistrationForm = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-
-
-  useEffect(() => {
-    const fetchCsrfCookie = async () => {
-      try {
-        // Fetch CSRF cookie from Django using Axios
-        const response = await axios.get('http://192.168.1.7:8000/csrf_cookie/', {
-          withCredentials: true, // Include credentials (cookies) in the request
-          headers: {
-            'Content-Type': 'application/json',  
-          },
-        });
-  
-        if (response.status === 200) {
-          // Extract CSRF token from the cookie
-          const csrfCookie = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('csrftoken='))
-            .split('=')[1];
-
-          setCsrfCookie(csrfCookie)
-          console.log('CSRF token:', csrfCookie);
-        } else {
-          console.error('Failed to fetch CSRF cookie:', response.status);
-        }
-      } catch (error) {
-        console.error('Error during CSRF cookie fetch:', error);
-      }
-    };
-  
-    // Call the function to fetch CSRF cookie 
-    fetchCsrfCookie();
-  }, [navigate]);
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+    const csrfToken = Cookies.get('csrftoken')
     try {
       // Prepare the data to be sent
       const requestData = {
         ...formData,
-        csrfmiddlewaretoken: csrfCookie, // Include CSRF token in the request data
+        csrfmiddlewaretoken: csrfToken, // Include CSRF token in the request data
       };
-  
+
       // Send a POST request to your Django server
-      const response = await axios.post('http://192.168.1.7:8000/register/', requestData, {
+      const response = await axios.post('http://169.254.37.113:8000/register/', requestData, {
         withCredentials: true, // Include credentials (cookies) in the request
         headers: {
           'Content-Type': 'application/json',  // Add any required headers here
-          'X-CSRFToken': csrfCookie
+          'X-CSRFToken': csrfToken
         },
       });
-  
+
       if (response.status === 200) {
         // Registration successful
         console.log('Registration successful!');
         navigate('/login'); // Redirect to login page
-      }else{
+      } else {
         console.error('Registration failed:', response.status);
         setErrorMessage('Registration failed. Please try again.');
       }
     } catch (error) {
       console.error('Error during registration:', error);
-      setErrorMessage("Email Exists");  
+      setErrorMessage("Email Exists");
     }
   };
   return (
@@ -120,56 +85,18 @@ const StudentRegistrationForm = () => {
       <label>
         Course:
         <div>
-          <label>
-            <input
-              type="radio"
-              name="community_id"
-              value="1"
-              checked={formData.community_id === "1"}
-              onChange={handleChange}
-              required
-            />
-            BCA
-          </label>
-        </div>
-
-        <div>
-          <label>
-            <input
-              type="radio"
-              name="community_id"
-              value="2"
-              checked={formData.community_id === "2"}
-              onChange={handleChange}
-            />
-            BCom
-          </label>
-        </div>
-
-        <div>
-          <label>
-            <input
-              type="radio"
-              name="community_id"
-              value="3"
-              checked={formData.community_id ==="3"}
-              onChange={handleChange}
-            />
-            BCom Hons.
-          </label>
-        </div>
-
-        <div>
-          <label>
-            <input
-              type="radio"
-              name="community_id"
-              value="4"
-              checked={formData.community_id === "4"}
-              onChange={handleChange}
-            />
-            BBA
-          </label>
+          <select
+            name="community_id"
+            value={formData.community_id}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select a course</option>
+            <option value="1">BCA</option>
+            <option value="2">BCom</option>
+            <option value="3">BCom Hons.</option>
+            <option value="4">BBA</option>
+          </select>
         </div>
       </label>
       <br />
@@ -180,7 +107,7 @@ const StudentRegistrationForm = () => {
       </label>
 
       <br />
-      <input type="text" name="user_role" value={formData.user_role = '2'} onChange={handleChange} required hidden/>
+      <input type="text" name="user_role" value={formData.user_role = '2'} onChange={handleChange} required hidden />
       {/* 0:!user_role 1:verifued_mentor 2:student */}
 
       <button type="submit" disabled={!isFormValid}>

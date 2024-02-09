@@ -11,11 +11,7 @@ from api.views import (
     GetUser,
     UpdateUserProfileView,
     UpdatePasswordView,
-    AddQuestionView,
-    PaginatedQuestionsView,
-    AddAnswerView,
-    QuestionDetailView,
-
+    NotificationView,
     analyze_text,
     get_all_mentors,
     verify_mentor,
@@ -31,10 +27,9 @@ urlpatterns = [
     path('delete/', DeactivateAccountView.as_view()),
     path("csrf_cookie/", GetCSRFToken.as_view()),
     path('user-profile/', GetUserProfileView.as_view()),
-    path('add-question/', AddQuestionView.as_view()),
-    path('add-answer/<int:question_id>', AddAnswerView.as_view()),
-    path('get-question/', PaginatedQuestionsView.as_view()),
-    path('question-detail/<int:question_id>', QuestionDetailView.as_view()),
+    path('user-notifications/', NotificationView.as_view()),
+
+    path('question/', include('question.urls')),
 
     path('update-profile/', UpdateUserProfileView.as_view()),
     path('update-password/', UpdatePasswordView.as_view()),
