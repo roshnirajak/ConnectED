@@ -14,9 +14,15 @@ import AddAnswer from './components/post/AddAnswer';
 
 import NotificationList from './components/Notifications';
 
+import MessagePage from './components/message/MessagePage';
+import Chatbox from './components/message/ChatBox';
+import MyQuestions from './components/MyQuestions';
+import VerifyAccount from './components/auth/VerifyAccount';
+import Settings from './components/Setting';
 import QuestionDetail from './components/post/QuestionDetail';
-import MentorWaitPage from './components/message/MentorWaitPage';
-import MentorTable from './components/admin/MentorApprovalPage';
+import AdminPanel from './components/admin/AdminPanel';
+import MentorWaitPage from './components/MentorWaitPage';
+import MentorTable from './components/admin/MentorTablePage';
 import MentorDetailsPage from './components/admin/MentorDetailsPage';
 const App = () => {
 
@@ -38,12 +44,23 @@ const App = () => {
         
         <Route path="/notifications" element={<NotificationList />} />
 
+        <Route path="/verify-account" element={<VerifyAccount />} />
+
+        <Route path="/my-questions" element={<MyQuestions />} />
+
+        <Route path="/message" element={<MessagePage />} />
+
+        <Route path="/chat/:userId" element={<Chatbox/>} />
         <Route path="/friend-profile/:userId" element={<FriendProfilePage />} />
 
         <Route path="/mentor-wait" element={<MentorWaitPage />} />
+      
+        <Route path="/settings" element={<Settings />} />
 
-        <Route path="/admin/mentor-details" element={<MentorDetailsPage />} />
-        {/* <Route path="/admin/mentor-verify/detail/:id" element={<MentorDetailsPage/>} /> */}
+        <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/admin/mentor-table" element={<MentorTable />} />
+
+        <Route path="/admin/mentor-verify/detail/:id" element={<MentorDetailsPage/>} />
       </Routes>
     </BrowserRouter>
   );
