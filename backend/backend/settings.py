@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-b9@n@b!f(+3-o8&5d*m*yt)rb)!ygt*tg0^^$=mrkdkd&4h(m@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -92,14 +93,27 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'backend.wsgi.application'
+# WSGI_APPLICATION = 'backend.wsgi.application'
 
+# WebSocket URL routing
+ASGI_APPLICATION = 'backend.asgi.application'
+
+# Channels layers configuration
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
     'default': {
+        'ENFORCE_SCHEMA': True,
         'ENGINE': 'djongo',
         'NAME': 'connected1',  # Replace with your MongoDB database name
     }
@@ -153,8 +167,17 @@ MEDIA_ROOT= os.path.join(BASE_DIR, 'media')
 MEDIA_URL= '/media/'
 
 # Email
-EMAIL_USE_TLS = True  
-EMAIL_HOST = 'smtp.gmail.com'  
-EMAIL_PORT = 465  
-EMAIL_HOST_USER = 'leemichael2992@gmail.com'  
-EMAIL_HOST_PASSWORD = 'fveefpscivwvtrzr'       
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587  # Change to 587 for TLS
+EMAIL_HOST_USER = 'leemichael2992@gmail.com'
+EMAIL_HOST_PASSWORD = 'fveefpscivwvtrzr'
+
+
+# EMAIL_HOST = 'localhost'
+# EMAIL_PORT = 1025
+# EMAIL_HOST_USER = ''
+# EMAIL_HOST_PASSWORD = ''
+# EMAIL_USE_TLS = False
+# DEFAULT_FROM_EMAIL = 'testing@example.com'

@@ -6,6 +6,7 @@ import axios from 'axios';
 const StudentRegistrationForm = () => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
@@ -24,7 +25,7 @@ const StudentRegistrationForm = () => {
   const isFnameValid = formData.full_name.length >= 3;
   const isEmailValid = formData.email.length >= 5;
   const isDesignationValid = formData.designation.length >= 3;
-  const isPasswordValid = formData.password.length >= 8 && formData.password.length <= 79;
+  const isPasswordValid = formData.password.length >= 8 && formData.password.length <= 14;
   const isImageValid =
     formData.mentor_id_card &&
     formData.mentor_id_card.size <= 1024 * 1024 && // 1MB
@@ -41,7 +42,6 @@ const StudentRegistrationForm = () => {
 
     // Check if a file was selected
     if (!file) {
-      // Optionally, you can set the error message or take other actions
       return;
     }
 
@@ -64,6 +64,7 @@ const StudentRegistrationForm = () => {
   };
 
   const handleSubmit = async (e) => {
+    setLoading(true);
     e.preventDefault();
     const csrfToken = Cookies.get('csrftoken')
 
@@ -78,9 +79,9 @@ const StudentRegistrationForm = () => {
     formDataToSend.append('password', formData.password);
 
     try {
-      // Send a POST request to your Django server
+      
       const response = await axios.post('http://169.254.37.113:8000/register/', formDataToSend, {
-        withCredentials: true, // Include credentials (cookies) in the request
+        withCredentials: true,
         headers: {
           'Content-Type': 'multipart/form-data',  // Use multipart/form-data for file uploads
           'X-CSRFToken': csrfToken,
@@ -90,7 +91,7 @@ const StudentRegistrationForm = () => {
       if (response.status === 200) {
         // Mentor registration successful
         console.log('Mentor registration successful!');
-        navigate('/login'); // Redirect to login page
+        navigate('/verify-account'); // Redirect to login page
       } else {
         setErrorMessage('Mentor registration failed. Please try again.');
       }
@@ -100,8 +101,8 @@ const StudentRegistrationForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h1>Mentor register </h1>
+    <form className="form-container" onSubmit={handleSubmit}>
+      <h1>Mentor Registration </h1>
       <label>
         Name:
         <input type="text" name="full_name" value={formData.full_name} onChange={handleChange} required />
@@ -122,14 +123,18 @@ const StudentRegistrationForm = () => {
 
       <br />
       <label>
-        Identity Card Image:
+      Identity Card Image:
+      </label>
+      <label className="file-input-label">
+        
         <input type="file" name="mentor_id_card" accept="image/*" onChange={handleFileChange} required />
-        {formData.previewImage && <img src={formData.previewImage} alt="Preview" style={{ height: '200px' }} />}
+
+        {formData.previewImage && <div className="file-preview"><img src={formData.previewImage} alt="Preview" /></div>}
       </label>
       <br />
 
       <label>
-        Course:
+        Select Community:
         <div>
           <select
             name="community_id"
@@ -137,7 +142,7 @@ const StudentRegistrationForm = () => {
             onChange={handleChange}
             required
           >
-            <option value="">Select a course</option>
+            <option value="">Select Course</option>
             <option value="1">BCA</option>
             <option value="2">BCom</option>
             <option value="3">BCom Hons.</option>
@@ -148,7 +153,7 @@ const StudentRegistrationForm = () => {
       <br />
 
       <label>
-        Password:
+        Password <span className='label-subhead'>(8 to 14 characters)</span>:
         <input type="password" name="password" value={formData.password} minLength="8" onChange={handleChange} required />
       </label>
 
@@ -158,7 +163,13 @@ const StudentRegistrationForm = () => {
       <button type="submit" disabled={!isFormValid}>
         Register
       </button>
-      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+      {loading ? (
+        <p style={{ color: 'green' }}>Loading...</p>
+      ) : (
+        <>
+          {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+        </>
+      )}
     </form>
   );
 };

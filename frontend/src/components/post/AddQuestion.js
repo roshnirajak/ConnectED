@@ -4,6 +4,7 @@ import TagsInput from 'react-tagsinput';
 import 'react-tagsinput/react-tagsinput.css';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import Navbar from '../Navbar';
 
 const AddQuestion = () => {
     const navigate = useNavigate();
@@ -11,10 +12,19 @@ const AddQuestion = () => {
     const [subject, setSubject] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
+    const handleInputChange = (e) => {
+        const inputValue = e.target.value;
+        // Check if the entered character is an English letter or a space
+        if (/^[a-zA-Z0-9\s!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]*$/.test(inputValue)) {
+            setQuestionContent(inputValue);
+        }
+    };
+
     const handleAddQuestion = async () => {
         const csrfToken = Cookies.get('csrftoken')
         try {
             // Validate input lengths
+            
             if (questionContent.length <= 20 || questionContent.length > 200) {
                 setErrorMessage('Question content must be less than 200 characters.');
                 return;
@@ -52,25 +62,30 @@ const AddQuestion = () => {
 
     return (
         <div>
-            <h2>Add Question</h2>
-            {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-            <div>
-                <label>Question Content:</label>
-                <textarea
-                    value={questionContent}
-                    onChange={(e) => setQuestionContent(e.target.value)}
-                />
+            <div className="add-question-container">
+                <h1>Add Question</h1>
+                {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+                <div>
+                    <label>Question Content:</label>
+                    <textarea
+                        placeholder='Enter your Question...'
+                        rows={5}
+                        value={questionContent} 
+                        onChange={handleInputChange}
+                    />
+                </div>
+                <div>
+                    <label>Subject:</label>
+                    <input
+                        type="text"
+                        value={subject}
+                        onChange={(e) => setSubject(e.target.value)}
+                        placeholder="Enter subject"
+                    />
+                </div>
+                <button onClick={handleAddQuestion}>Add Question</button>
             </div>
-            <div>
-                <label>Subject:</label>
-                <input
-                    type="text"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                    placeholder="Enter subject"
-                />
-            </div>
-            <button onClick={handleAddQuestion}>Add Question</button>
+            <Navbar />
         </div>
     );
 };

@@ -17,13 +17,13 @@ const StudentRegistrationForm = () => {
 
 
 
-  // const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   const isFnameValid = formData.full_name.length >= 3;
   const isEmailValid = formData.email.length >= 5;
   const isCollegeValid = formData.college_name.length >= 3;
-  const isPasswordValid = formData.password.length >= 8 && formData.password.length <= 79;
+  const isPasswordValid = formData.password.length >= 8 && formData.password.length <= 14;
   const isFormValid = isFnameValid && isEmailValid && isCollegeValid && isPasswordValid;
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -34,6 +34,7 @@ const StudentRegistrationForm = () => {
     const csrfToken = Cookies.get('csrftoken')
     try {
       // Prepare the data to be sent
+      setLoading(true);
       const requestData = {
         ...formData,
         csrfmiddlewaretoken: csrfToken, // Include CSRF token in the request data
@@ -51,7 +52,7 @@ const StudentRegistrationForm = () => {
       if (response.status === 200) {
         // Registration successful
         console.log('Registration successful!');
-        navigate('/login'); // Redirect to login page
+        navigate('/verify-account'); // Redirect to login page
       } else {
         console.error('Registration failed:', response.status);
         setErrorMessage('Registration failed. Please try again.');
@@ -62,8 +63,8 @@ const StudentRegistrationForm = () => {
     }
   };
   return (
-    <form onSubmit={handleSubmit}>
-      <h1>Student register </h1>
+    <form className="form-container" onSubmit={handleSubmit}>
+      <h1>Student Registration </h1>
       <label>
         Name:
         <input type="text" name="full_name" value={formData.full_name} onChange={handleChange} required />
@@ -77,13 +78,13 @@ const StudentRegistrationForm = () => {
       <br />
 
       <label>
-        College:
+        College Name <span className='label-subhead'>(or University Name)</span>:
         <input type="text" name="college_name" value={formData.college_name} onChange={handleChange} required />
       </label>
       <br />
 
       <label>
-        Course:
+        Select Community:
         <div>
           <select
             name="community_id"
@@ -91,7 +92,7 @@ const StudentRegistrationForm = () => {
             onChange={handleChange}
             required
           >
-            <option value="">Select a course</option>
+            <option value="">Select your Course</option>
             <option value="1">BCA</option>
             <option value="2">BCom</option>
             <option value="3">BCom Hons.</option>
@@ -102,7 +103,7 @@ const StudentRegistrationForm = () => {
       <br />
 
       <label>
-        Password:
+        Password <span className='label-subhead'>(8 to 14 characters)</span>:
         <input type="password" name="password" value={formData.password} minLength="8" onChange={handleChange} required />
       </label>
 
@@ -113,7 +114,13 @@ const StudentRegistrationForm = () => {
       <button type="submit" disabled={!isFormValid}>
         Register
       </button>
-      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+      {loading ? (
+        <p style={{ color: 'green' }}>Loading...</p>
+      ) : (
+        <>
+          {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+        </>
+      )}
     </form>
   );
 };

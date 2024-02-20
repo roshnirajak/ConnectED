@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import axios from 'axios';
+import Navbar from './Navbar';
 
 const ProfilePage = () => {
     const [userProfile, setUserProfile] = useState(null);
@@ -39,44 +40,56 @@ const ProfilePage = () => {
     }, []);
     return (
         <div>
-            {userProfile ? (
-                <div>
-                    <h2>User Profile Details</h2>
-                    <p><strong>Profile Image:</strong> <br />
-                        <img
-                            alt="profile"
-                            style={{
-                                border: `1px solid ${userProfile.profile.user_role === '1' ? 'blue' : '#ddd'}`,
-                                borderRadius: '50%',
-                                width: '250px',
-                                height: '250px'
-                            }}
-                            src={userProfile.profile.display_image}
-                        />
-                    </p>
-                    {/* <p>
+            <div className="user-profile-container">
+                {userProfile ? (
+                    <div>
+                        <h2>My Profile</h2>
+                        <p>
+                            <img
+                                alt="profile"
+                                style={{
+                                    border: `3px solid ${userProfile.profile.user_role === '1' ? '#91a2f6' : '#ddd'}`,
+                                    borderRadius: '50%',
+                                    width: '200px',
+                                    height: '200px'
+                                }}
+                                src={`${userProfile.profile.display_image}&size=200`}
+                            />
+                        </p>
+                        {/* <p>
                         <strong>Mentor Image:</strong>
                         <br />
                         <img src={`data:image/png;base64, ${userProfile.mentor_id_image_data}`} style={{ border: '1px solid #ddd', height: '250px' }} alt="Mentor ID" />
                     </p> */}
-                    <p><strong>Name:</strong> {userProfile.profile.full_name}</p>
-                    <p><strong>Email:</strong> {userProfile.email}</p>
-                    <p><strong>College:</strong> {userProfile.profile.college_name}</p>
-                    <p><strong>Course:</strong>
-                        {userProfile.profile.community_id === 1 ? 'BCA' :
-                            userProfile.profile.community_id === 2 ? 'BCom' :
-                                userProfile.profile.community_id === 3 ? 'BCom Hons' :
-                                    userProfile.profile.community_id === 4 ? 'BBA' :
-                                        'Unknown Course'}
-                    </p>
-
-                </div>
-            ) : (
-                <p>Loading...</p>
-            )}
-            <Link to="/homepage">
-                <button className="register-button">Homepage</button>
-            </Link>
+                        <h2>{userProfile.profile.full_name}</h2>
+                        <p><strong>{userProfile.email}</strong></p>
+                        {userProfile.profile.user_role === "1" ? (
+                            <p><span>Designation:</span> {userProfile.profile.designation}</p>
+                        ) : (
+                            <p><span>College</span><br/><strong>{userProfile.profile.college_name}</strong></p>
+                        )}
+                        <p><strong>Community: </strong>
+                            {userProfile.profile.community_id === 1 ? 'BCA' :
+                                userProfile.profile.community_id === 2 ? 'BCom' :
+                                    userProfile.profile.community_id === 3 ? 'BCom Hons' :
+                                        userProfile.profile.community_id === 4 ? 'BBA' :
+                                            'Unknown Course'}
+                        </p>
+                        {userProfile.profile.rank !== "" ? (
+                            <p><span>Rank:</span> {userProfile.profile.rank}</p>
+                        ) : (
+                            <p><span>Rank</span><br/>None</p>
+                        )}
+                        <Link to="/my-questions"><button className='register-button'>My Questions</button></Link>
+                    </div>
+                ) : (
+                    <p>Loading...</p>
+                )}
+                <br/>
+                <br/>
+                <br/>
+            </div>
+            <Navbar />
         </div>
     );
 };

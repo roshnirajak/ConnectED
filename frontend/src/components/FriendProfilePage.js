@@ -1,24 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const FriendProfilePage = () => {
     const [userProfile, setUserProfile] = useState(null);
+    const [requestStatus, setRequestStatus] = useState(null);
+    const [acceptRequest, setAcceptRequest] = useState(null);
     const { userId } = useParams();
+    const [toUser, setToUser] = useState(null);
+
     useEffect(() => {
-        const sessionId = Cookies.get('sessionid');
-        const csrfToken = Cookies.get('csrftoken');
-        console.log(csrfToken);
-        console.log(sessionId);
-        axios.get(`http://169.254.37.113:8000/friend-profile/${userId}`, {
-            withCredentials: true,
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken,
-            },
-        })
-            .then(response => {
+        const fetchUserProfile = async () => {
+            try {
+                const csrfToken = Cookies.get('csrftoken');
+                const response = await axios.get(`http://169.254.37.113:8000/friend-profile/${userId}`, {
+                    withCredentials: true,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                });
                 const data = response.data;
                 console.log('User profile data:', data);
 
@@ -26,26 +28,91 @@ const FriendProfilePage = () => {
                     window.location.href = '/profile';
                 } else {
                     setUserProfile(data);
+                    getRequestStatus();
                 }
-
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Error fetching user profile:', error);
-
                 if (error.response && error.response.status === 401) {
                     window.location.href = '/homepage';
                 } else {
                     window.location.href = '/homepage';
                 }
-            });
+            }
+        };
 
+        fetchUserProfile();
     }, [userId]);
+
+    const getRequestStatus = async () => {
+        try {
+            const csrfToken = Cookies.get('csrftoken');
+            const response = await axios.get(`http://169.254.37.113:8000/message/get-status/${userId}`, {
+                withCredentials: true,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+            });
+            const data = response.data;
+             // Set the request status
+            if(data.message==="pending"|| data.message==="rejected"||data.message==="accepted"){
+                setRequestStatus(data.message);
+            }
+            else if(data.message==="Accept Request"){
+                setAcceptRequest(data.message)
+            }
+        } catch (error) {
+            console.error('Error getting message request status:', error);
+            // Handle error if needed
+        }
+    };
+    const sendMessageRequest = async () => {
+        try {
+            const csrfToken = Cookies.get('csrftoken');
+            await axios.post(`http://169.254.37.113:8000/message/send-request/${userId}`, {
+                to_user: toUser,
+            }, {
+                withCredentials: true,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+            });
+            console.log('Message request sent successfully!');
+            // Assuming you want to fetch request status after sending the message request
+            getRequestStatus();
+        } catch (error) {
+            console.error('Error sending message request:', error);
+            // Handle error if needed
+        }
+    };
+    const acceptMessageRequest = async () => {
+        try {
+            const csrfToken = Cookies.get('csrftoken');
+            await axios.post(`http://169.254.37.113:8000/message/accept-request/${userId}`, {
+                to_user: toUser,
+            }, {
+                withCredentials: true,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+            });
+            console.log('Message request accepted successfully!');
+            // Assuming you want to fetch request status after sending the message request
+            setAcceptRequest(null);
+            getRequestStatus();
+        } catch (error) {
+            console.error('Error sending message request:', error);
+            // Handle error if needed
+        }
+    };
     return (
         <div>
             {userProfile ? (
                 <div>
                     <h2>User Profile Details</h2>
-                    <p><strong>Profile Image:</strong> <br />
+                    <p> <br />
                         <img
                             alt="profile"
                             style={{
@@ -57,11 +124,6 @@ const FriendProfilePage = () => {
                             src={`${userProfile.profile.display_image}`}
                         />
                     </p>
-                    {/* <p>
-                        <strong>Mentor Image:</strong>
-                        <br />
-                        <img src={`data:image/png;base64, ${userProfile.mentor_id_image_data}`} style={{ border: '1px solid #ddd', height: '250px' }} alt="Mentor ID" />
-                    </p> */}
                     <p><strong>Name:</strong> {userProfile.profile.full_name}</p>
                     <p><strong>Email:</strong> {userProfile.email}</p>
                     <p><strong>College:</strong> {userProfile.profile.college_name}</p>
@@ -72,17 +134,19 @@ const FriendProfilePage = () => {
                                     userProfile.profile.community_id === 4 ? 'BBA' :
                                         'Unknown Course'}
                     </p>
-
+                    {requestStatus && (requestStatus === "pending" || requestStatus === "rejected" || requestStatus === "accepted") && (
+                        <p>Request Status: {requestStatus}</p>
+                    )}
+                    {acceptRequest && acceptRequest === "Accept Request" && (
+                        <button onClick={acceptMessageRequest}>Accept Request</button>
+                    )}
+                    {!requestStatus && !acceptRequest && (
+                        <button onClick={sendMessageRequest}>Send Message Request</button>
+                    )}
                 </div>
             ) : (
                 <p>Loading...</p>
             )}
-            <Link to="/homepage">
-                <button className="register-button">Homepage</button>
-            </Link>
-            <Link to="/homepage">
-                <button className="register-button">Send Message Request</button>
-            </Link>
             <Link to="/homepage">
                 <button className="register-button">Homepage</button>
             </Link>

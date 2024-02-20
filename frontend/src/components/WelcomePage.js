@@ -67,7 +67,7 @@ const WelcomePage = () => {
                 <img src="connectedlogo.png" alt="Connected Logo" />
             </div>
             <h1 className="welcome-heading">Welcome to the Connect<span>ED</span>!</h1>
-            <div className="button-container">
+            <div className="reg-button-container">
 
                 <button onClick={handleRedirectStudentReg} className="register-button">Register as Student</button>
 
@@ -75,7 +75,7 @@ const WelcomePage = () => {
                 <button onClick={handleRedirectMentorReg} className="register-button">Register as Mentor</button>
 
             </div>
-            <button onClick={handleRedirectLogin}>Go to Login</button>
+            <button onClick={handleRedirectLogin} className="login-text-button">Already have an account <span>Login</span></button>
         </div>
     );
 };

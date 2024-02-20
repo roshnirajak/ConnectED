@@ -5,7 +5,7 @@ from django.template.loader import render_to_string
 from django.utils.crypto import get_random_string
 from djongo import models
 from djongo.models.fields import ArrayField
-
+import djongo
 class UserProfileManager(BaseUserManager):
     def create_user(self, email, full_name, password=None, **extra_fields):
         if not email:
@@ -34,6 +34,7 @@ class UserProfile(AbstractBaseUser):
     user_role =     models.CharField(max_length=2)          #0:!verified_mentor 1:verified_mentor 2:student
     mentor_id_card = models.ImageField(upload_to='uploads/mentor_id', null=True, blank=True) #image path
     report_count=   models.SmallIntegerField(default=0)
+    verification_code= models.CharField(max_length=5)
 
     # Custom fields for Django User model
     is_active = models.BooleanField(default=True)
@@ -55,7 +56,7 @@ class UserProfile(AbstractBaseUser):
         return self.is_staff
 
 class Community(models.Model):
-    community_id = models.SmallIntegerField(primary_key=True)  
+    community_id = models.AutoField(primary_key=True)  
     community_name = models.CharField(max_length=100)
 
     def __str__(self):

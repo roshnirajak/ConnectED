@@ -5,7 +5,9 @@ from .views import (
     AddAnswerView,
     QuestionDetailView,
     ToggleUpvote,
-    ToggleDownvote
+    ToggleDownvote,
+    MyQuestions,
+    DeleteQuestion
 )
 
 urlpatterns = [
@@ -15,5 +17,7 @@ urlpatterns = [
     path("question-detail/<int:question_id>", QuestionDetailView.as_view()),
     path("toggle_upvote/<int:answerid>", ToggleUpvote.as_view()),
     path("toggle_downvote/<int:answerid>", ToggleDownvote.as_view()),
+    path("my-questions-data/", MyQuestions.as_view()),
+    path("my-questions-delete/<int:question_id>", DeleteQuestion.as_view()),
     # Add more paths for your API endpoints as needed
 ]
