@@ -61,6 +61,29 @@ class AcceptMessageRequest(APIView):
 
 
 @method_decorator(csrf_protect, name="dispatch")
+class RejectMessageRequest(APIView):
+    def post(self, request, userId, *args, **kwargs):
+        to_user_profile = UserProfile.objects.get(email=request.user)
+        from_user_profile = UserProfile.objects.get(user_id=userId)
+
+        conversation = Conversation.objects.create(
+            from_user=to_user_profile.user_id,
+            to_user=from_user_profile.user_id,
+            approval_status="rejected",  # Request will remain pending initially
+            community_id=to_user_profile.community_id,  # Adjust according to your logic
+        )
+        conversation_row = Conversation.objects.filter(
+            from_user=from_user_profile.user_id, to_user=to_user_profile.user_id
+        ).first()
+        print(conversation_row.from_user)
+        if conversation_row:
+            conversation_row.approval_status = "rejected"
+            conversation_row.save()
+
+        return JsonResponse({"message": "Message request accepted successfully!"})
+
+
+@method_decorator(csrf_protect, name="dispatch")
 class GetMessageRequestStatus(View):
     def get(self, request, userId):
         try:

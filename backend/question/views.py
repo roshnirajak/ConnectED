@@ -13,6 +13,8 @@ from .utils import analyze_toxicity
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
+
 
 
 # Create your views here.
@@ -30,7 +32,7 @@ class PaginatedQuestionsView(View):
             current_user_id = user_profile.user_id
 
             questions = Question.objects.filter(
-                community_id=current_user_community_id
+                community_id=current_user_community_id, is_active__in = [True]
             ).order_by("-created_at")
 
             paginator = Paginator(questions, page_size)
@@ -43,12 +45,12 @@ class PaginatedQuestionsView(View):
             questions_data = []
 
             for question in current_page.object_list:
-                if question.is_active:  # Check if question is active
-                    user_profile = UserProfile.objects.get(
+                  # Check if question is active
+                user_profile = UserProfile.objects.get(
                         user_id=question.question_user
                     )
-                    answer_count = Answer.objects.filter(
-                        question_id=question.question_id
+                answer_count = Answer.objects.filter(
+                        question_id=question.question_id, is_active__in=[True]
                     ).count()
 
                 question_data = {
@@ -80,6 +82,7 @@ class PaginatedQuestionsView(View):
 
 @method_decorator(csrf_protect, name="dispatch")
 class DeleteQuestion(View):
+    permission_classes = (permissions.AllowAny,)
     def post(self, request, question_id):
         try:
             # Check if the user is authenticated
@@ -114,6 +117,72 @@ class DeleteQuestion(View):
 
 
 @method_decorator(csrf_protect, name="dispatch")
+class DeleteAnswer(View):
+    permission_classes = (permissions.AllowAny,)
+    def post(self, request, answer_id):
+        try:
+            # Check if the user is authenticated
+            if request.user:
+                # Retrieve the question
+                answer = Answer.objects.get(answer_id=answer_id)
+                user_profile = UserProfile.objects.get(email=request.user)
+                # Check if the user owns the question or has permission to delete it
+                if answer.answer_user == user_profile.user_id:
+                    # Set the question as inactive
+                    answer.is_active = False
+                    answer.save()
+                    return JsonResponse({"message": "Answer deleted successfully"})
+                else:
+                    return JsonResponse(
+                        {
+                            "error": "Unauthorized access. You do not have permission to delete this question."
+                        },
+                        status=403,
+                    )
+            else:
+                return JsonResponse(
+                    {
+                        "error": "User not authenticated. Please log in to delete the question."
+                    },
+                    status=401,
+                )
+        except Question.DoesNotExist:
+            return JsonResponse({"error": "Question not found."}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+
+@method_decorator(csrf_protect, name="dispatch")
+class AdminDeleteQuestion(View):
+    permission_classes = (permissions.AllowAny,)
+    def post(self, request, question_id):
+        try:
+            question = Question.objects.get(question_id=question_id)
+            question.is_active = False
+            question.save()
+            return JsonResponse({"message": "Question deleted successfully"})
+           
+        except Question.DoesNotExist:
+            return JsonResponse({"error": "Question not found."}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+@method_decorator(csrf_protect, name="dispatch")
+class AdminDeleteAnswer(View):
+    permission_classes = (permissions.AllowAny,)
+    def post(self, request, answer_id):
+        try:
+            answer = Answer.objects.get(answer_id=answer_id)
+            answer.is_active = False
+            answer.save()
+            return JsonResponse({"message": "Answer deleted successfully"})
+           
+        except Question.DoesNotExist:
+            return JsonResponse({"error": "Question not found."}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+@method_decorator(csrf_protect, name="dispatch")
 class QuestionDetailView(View):
     def get(self, request, question_id, *args, **kwargs):
         try:
@@ -127,7 +196,7 @@ class QuestionDetailView(View):
             user_profile = UserProfile.objects.get(user_id=question.question_user)
 
             # Retrieve answers for the question
-            answers = Answer.objects.filter(question_id=question_id).order_by(
+            answers = Answer.objects.filter(question_id=question_id, is_active__in=[True]).order_by(
                 "-created_at"
             )
 
@@ -140,6 +209,8 @@ class QuestionDetailView(View):
                 "user_role": user_profile.user_role,
                 "display_image": user_profile.display_image,
                 "created_at": question.created_at,
+                "report_count": question.report_count,
+                "user_reported": request.user in question.reported_by.all(),
                 "self_user": current_user_id == question.question_user,
                 "answers": [
                     {
@@ -157,8 +228,10 @@ class QuestionDetailView(View):
                         ).display_image,
                         "upvotes": answer.upvotes,
                         "downvotes": answer.downvotes,
+                        "report_count": answer.report_count,
                         "created_at": answer.created_at,
                         "user_liked": request.user in answer.liked_by.all(),
+                        "user_reported": request.user in answer.reported_by.all(),
                         "user_disliked": request.user in answer.disliked_by.all(),
                         "self_user": current_user_id == answer.answer_user,
                     }
@@ -173,6 +246,7 @@ class QuestionDetailView(View):
 
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
+
 
 
 @method_decorator(csrf_protect, name="dispatch")
@@ -355,48 +429,6 @@ class ToggleUpvote(APIView):
         # Save the updated rank
         answer_user_profile.save()
 
-
-class MyQuestions(APIView):
-    permission_classes = (permissions.AllowAny,)
-
-    def get(self, request, *args, **kwargs):
-        try:
-            user_profile = UserProfile.objects.get(email=request.user)
-            questions = Question.objects.filter(
-                question_user=user_profile.user_id
-            ).order_by("-created_at")
-
-            questions_data = []
-
-            for question in questions:
-                try:
-                    user_profile = UserProfile.objects.get(
-                        user_id=question.question_user
-                    )
-                except ObjectDoesNotExist:
-                    continue  # Skip this question if the user profile doesn't exist
-
-                answer_count = Answer.objects.filter(
-                    question_id=question.question_id
-                ).count()
-
-                question_data = {
-                    "question_id": question.question_id,
-                    "question_user": question.question_user,
-                    "question_content": question.question_content,
-                    "user_full_name": user_profile.full_name,
-                    "display_image": user_profile.display_image,
-                    "user_role": user_profile.user_role,
-                    "answer_count": answer_count,
-                    "self_user": user_profile.user_id == question.question_user,
-                }
-                questions_data.append(question_data)
-
-            return Response({"questions": questions_data})
-        except Exception as e:
-            return Response({"error": str(e)})
-
-
 @method_decorator(csrf_protect, name="dispatch")
 class ToggleDownvote(APIView):
     permission_classes = (permissions.AllowAny,)
@@ -430,3 +462,233 @@ class ToggleDownvote(APIView):
             return JsonResponse(
                 {"status": "error", "message": "Answer not found"}, status=404
             )
+
+@method_decorator(csrf_protect, name="dispatch")
+class ToggleQuestionReport(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, questionid, *args, **kwargs):
+        try:
+            question = Question.objects.get(question_id=questionid)
+
+            # Get the UserProfile instance corresponding to the current user
+            user_profile = UserProfile.objects.get(email=request.user)
+            id = user_profile.user_id
+            print(id)
+            if user_profile:
+                if user_profile in question.reported_by.all():
+                    # User has already liked the answer, remove like
+                    question.report_count -= 1
+                    question.reported_by.remove(id)
+                else:
+                    # User hasn't liked the answer, add like
+                    question.report_count += 1
+                    question.reported_by.add(id)
+                question.save()
+                print("After:", question.reported_by.all())
+                return JsonResponse({"status": "success"})
+            else:
+                return JsonResponse(
+                    {"status": "error", "message": "User not authenticated"}, status=403
+                )
+
+        except Answer.DoesNotExist:
+            return JsonResponse(
+                {"status": "error", "message": "Answer not found"}, status=404
+            )
+        
+
+@method_decorator(csrf_protect, name="dispatch")
+class ToggleAnswerReport(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, answerid, *args, **kwargs):
+        try:
+            answer = Answer.objects.get(answer_id=answerid)
+
+            # Get the UserProfile instance corresponding to the current user
+            user_profile = UserProfile.objects.get(email=request.user)
+            id = user_profile.user_id
+            print(id)
+            if user_profile:
+                if user_profile in answer.reported_by.all():
+                    # User has already liked the answer, remove like
+                    answer.report_count -= 1
+                    answer.reported_by.remove(id)
+                else:
+                    # User hasn't liked the answer, add like
+                    answer.report_count += 1
+                    answer.reported_by.add(id)
+                answer.save()
+                print("After:", answer.reported_by.all())
+                return JsonResponse({"status": "success"})
+            else:
+                return JsonResponse(
+                    {"status": "error", "message": "User not authenticated"}, status=403
+                )
+
+        except Answer.DoesNotExist:
+            return JsonResponse(
+                {"status": "error", "message": "Answer not found"}, status=404
+            )
+
+class MyQuestions(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request, *args, **kwargs):
+        try:
+            user_profile = UserProfile.objects.get(email=request.user)
+            questions = Question.objects.filter(
+                question_user=user_profile.user_id, is_active__in=[True]
+            ).order_by("-created_at")
+
+            questions_data = []
+
+            for question in questions:
+                try:
+                    user_profile = UserProfile.objects.get(
+                        user_id=question.question_user
+                    )
+                except ObjectDoesNotExist:
+                    continue  # Skip this question if the user profile doesn't exist
+
+                answer_count = Answer.objects.filter(
+                    question_id=question.question_id
+                ).count()
+
+                question_data = {
+                    "question_id": question.question_id,
+                    "question_user": question.question_user,
+                    "question_content": question.question_content,
+                    "user_full_name": user_profile.full_name,
+                    "display_image": user_profile.display_image,
+                    "user_role": user_profile.user_role,
+                    "answer_count": answer_count,
+                    "self_user": user_profile.user_id == question.question_user,
+                }
+                questions_data.append(question_data)
+
+            return Response({"questions": questions_data})
+        except Exception as e:
+            return Response({"error": str(e)})
+
+
+# Admin Section
+@method_decorator(csrf_protect, name="dispatch")
+class GetReportedQuestion(View):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request, *args, **kwargs):
+        try:
+            questions = Question.objects.filter(
+                Q(report_count__gt=0), is_active__in = [True]
+            ).order_by("-created_at")
+            
+            questions_data = []
+
+            for question in questions:
+                  # Check if question is active
+                user_profile = UserProfile.objects.get(
+                        user_id=question.question_user
+                    )
+                answer_count = Answer.objects.filter(
+                        question_id=question.question_id, is_active__in=[True]
+                    ).count()
+
+                question_data = {
+                    "question_id": question.question_id,
+                    "question_user": question.question_user,
+                    "question_content": question.question_content,
+                    "report_count": question.report_count,
+                    "user_full_name": user_profile.full_name,
+                    "display_image": user_profile.display_image,
+                    "user_role": user_profile.user_role,
+                    "community":user_profile.community_id,
+                    "answer_count": answer_count,
+                }
+
+                questions_data.append(question_data)
+
+            return JsonResponse(
+                {
+                    "questions": questions_data,
+                }
+            )
+        except UserProfile.DoesNotExist:
+            return JsonResponse({"error": "User profile does not exist."}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+        
+
+@method_decorator(csrf_protect, name="dispatch")
+class GetReportedAnswer(View):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request, *args, **kwargs):
+        try:
+            answers = Answer.objects.filter(
+                Q(report_count__gt=0), is_active__in = [True]
+            ).order_by("-created_at")
+            
+            answers_data = []
+
+            for answer in answers:
+                  # Check if question is active
+                user_profile = UserProfile.objects.get(
+                        user_id=answer.answer_user
+                    )
+
+                answer_data = {
+                    "answer_id": answer.answer_id,
+                    "answer_user": answer.answer_user,
+                    "answer_content": answer.answer_content,
+                    "report_count": answer.report_count,
+                    "user_full_name": user_profile.full_name,
+                    "display_image": user_profile.display_image,
+                    "user_role": user_profile.user_role,
+                    "community":user_profile.community_id,
+
+                }
+
+                answers_data.append(answer_data)
+
+            return JsonResponse(
+                {
+                    "questions": answers_data,
+                }
+            )
+        except UserProfile.DoesNotExist:
+            return JsonResponse({"error": "User profile does not exist."}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+        
+
+
+@method_decorator(csrf_protect, name="dispatch")
+class GetNotificationsIsRead(View):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request, *args, **kwargs):
+        user_profile = UserProfile.objects.get(email=request.user)
+        notifications = Notification.objects.filter(notified_user=user_profile.user_id)
+
+        notification_data = [{'id': notification.id, 'notified_user':notification.notified_user, 'is_read': notification.is_read} for notification in notifications]
+
+        print(notification_data)
+
+         # Check if any notification has is_read=False
+        notifications_are_read = all(notification.is_read for notification in notifications)
+
+        return JsonResponse({'notifications': notification_data, 'notifications_are_read': notifications_are_read})
+
+@method_decorator(csrf_protect, name="dispatch")
+class MarkNotificationsIsRead(View):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+        
+        user_profile = UserProfile.objects.get(email=request.user)
+        Notification.objects.filter(notified_user=user_profile.user_id).update(is_read=True)
+
+        return JsonResponse({'message': 'Notifications marked as read.'})
+

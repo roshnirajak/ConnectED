@@ -9,6 +9,7 @@ import InboxComponent from './Inbox';
 
 const MessagePage = () => {
     const [activeComponent, setActiveComponent] = useState(null);
+    const [activeButton, setActiveButton] = useState('Inbox');
 
     useEffect(() => {
         handleClick('Inbox');
@@ -16,6 +17,7 @@ const MessagePage = () => {
 
     const handleClick = (componentName) => {
         setActiveComponent(componentName);
+        setActiveButton(componentName);
     };
 
     const renderComponent = () => {
@@ -33,16 +35,34 @@ const MessagePage = () => {
 
     return (
         <>
-        <div>
-        <h1>Message Box</h1>
-            <button onClick={() => handleClick('RequestReceived')}>Request Received</button>
-            <button onClick={() => handleClick('Inbox')}>Inbox</button>
-            <button onClick={() => handleClick('RequestSent')}>Request Sent</button>
-            <div>
-                {renderComponent()}
+            <div className="msg-box-container">
+                <h1>Message Box</h1>
+                <div className="msg-button-container">
+                    <button
+                        className={activeButton === 'RequestReceived' ? 'active' : ''}
+                        onClick={() => handleClick('RequestReceived')}
+                    >
+                        Request Received
+                    </button>
+                    <button
+                        className={activeButton === 'Inbox' ? 'active' : ''}
+                        onClick={() => handleClick('Inbox')}
+                    >
+                        Inbox
+                    </button>
+                    <button
+                        className={activeButton === 'RequestSent' ? 'active' : ''}
+                        onClick={() => handleClick('RequestSent')}
+                    >
+                        Request Sent
+                    </button>
+                </div>
+                <div className="msg-component-container">
+                    {renderComponent()}
+                </div>
             </div>
-        </div>
-        <Navbar/>
+
+            <Navbar />
         </>
     );
 };

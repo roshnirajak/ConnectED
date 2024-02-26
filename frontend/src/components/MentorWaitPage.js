@@ -27,6 +27,9 @@ const MentorWaitPage = () => {
                 if (response.data.profile.user_role === "1") {
                     window.location.href = '/homepage';
                 }
+                if (response.data.profile.user_role === "3") {
+                    window.location.href = '/remove-mentor';
+                }
             })
             .catch(error => {
                 console.error('Error fetching user profile:', error);

@@ -83,6 +83,8 @@ const MentorTable = () => {
                   <span className="verified">Verified</span>
                 ) : mentor.user_role === '2' ? (
                   <span className="student">Student</span>
+                ) : mentor.user_role === '3' ? (
+                  <span className="student">Removed</span>
                 ) : (
                   <span className="unknown">Unknown Status</span>
                 )}

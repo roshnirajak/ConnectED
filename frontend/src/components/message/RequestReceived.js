@@ -44,27 +44,50 @@ const RequestReceivedComponent = () => {
             // Handle error if needed
         }
     };
+    const rejectMessageRequest = async (userId) => {
+        try {
+            const csrfToken = Cookies.get('csrftoken');
+            await axios.post(`http://169.254.37.113:8000/message/reject-request/${userId}`, {
+                to_user: toUser,
+            }, {
+                withCredentials: true,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+            });
+            console.log('Message request rejected successfully!');
+            fetchConversations()
+
+        } catch (error) {
+            console.error('Error sending message request:', error);
+            // Handle error if needed
+        }
+    };
     return (
-        <div>
+        <div className="conversation-rec-container">
             <h2>Request Received</h2>
             <ul>
                 {conversations.map((conversation, index) => (
                     <li key={index}>
+                        <Link to={`/friend-profile/${conversation.user_id}`}>
                         <img
                             alt="profile"
                             style={{
                                 border: `1px solid ${conversation.display_image === '1' ? 'blue' : '#ddd'}`,
                                 borderRadius: '50%',
-                                width: '50px',
-                                height: '50px'
+                                width: '25px',
+                                height: '25px'
                             }}
-                            src={`${conversation.display_image}&size=50`}
+                            src={`${conversation.display_image}&size=25`}
                         />
                         <span>{conversation.full_name}</span>
-                        <button onClick={() => acceptMessageRequest(conversation.user_id)}>Accept</button>
-                        <button>Reject</button>
+                        </Link>
+                        <button className='accept' onClick={() => acceptMessageRequest(conversation.user_id)}>Accept</button>
+                        <button className='reject' onClick={()=>{rejectMessageRequest(conversation.user_id)}}>Reject</button>
                     </li>
                 ))}
+                
             </ul>
         </div>
     );

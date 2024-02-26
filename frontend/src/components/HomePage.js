@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faFlag } from '@fortawesome/free-solid-svg-icons'
 import Navbar from './Navbar';
 
 const PageSize = 10; // Number of items to display per page
@@ -54,7 +52,7 @@ const HomePage = () => {
         fetchData();
 
         // Refresh data every 2 seconds
-        const intervalId = setInterval(fetchData, 100000);
+        const intervalId = setInterval(fetchData, 3000);
 
         // Cleanup function to clear interval when component unmounts
         return () => clearInterval(intervalId);
@@ -126,7 +124,7 @@ const HomePage = () => {
                         <br />
 
 
-                        <FontAwesomeIcon icon={faFlag} className="flag-icon" />
+                        
 
                         <Link to={`/question-detail/${item.question_id}`}>
                             <button className='num-of-answer'><b>{item.answer_count} Answer</b></button>

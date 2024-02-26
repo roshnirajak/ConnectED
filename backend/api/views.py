@@ -192,11 +192,11 @@ class DeactivateAccountView(APIView):
     def post(self, request, format=None):
         email = request.user
         # Retrieve the user by ID or return a 404 response if not found
-        user = UserProfile.objects.get(email=email)
+        user_profile = UserProfile.objects.get(email=email)
 
         # Deactivate the user account
-        user.is_active = False
-        user.save()
+        user_profile.is_active = False
+        user_profile.save()
 
         return Response(
             {"message": "Account deactivated successfully"}, status=status.HTTP_200_OK
@@ -431,7 +431,7 @@ class GetAllMentors(APIView):
     def get(self, request):
         if request.user:  # Check if user is authenticated
             try: 
-                mentors_data = UserProfile.objects.filter(user_role__in=["0", "1"]).values()
+                mentors_data = UserProfile.objects.filter(user_role__in=["0", "1", "3"]).order_by('-created_at').values()
                 mentors_list = list(mentors_data)
                 return JsonResponse({"mentors": mentors_list}, safe=False)
             except UserProfile.DoesNotExist:
@@ -480,6 +480,23 @@ class VerifyMentor(APIView):
                 user_profile.user_role = "1"  # Assuming '1' represents the role of a verified mentor
                 user_profile.save()
                 return JsonResponse({"message": "Mentor verified successfully"})
+            else:
+                return JsonResponse({"error": "Authentication required"}, status=401)
+        except UserProfile.DoesNotExist:
+            return JsonResponse({"error": "User not found"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": f"Something went wrong: {str(e)}"}, status=500)
+
+@method_decorator(csrf_protect, name="dispatch")
+class RemoveMentor(APIView):
+    def post(self, request, user_id):
+        try:
+            if request.user:  # Check if the user is authenticated
+                print(request.user)
+                user_profile = UserProfile.objects.get(user_id=user_id)
+                user_profile.user_role = "3"  # Assuming '1' represents the role of a verified mentor
+                user_profile.save()
+                return JsonResponse({"message": "Mentor removed successfully"})
             else:
                 return JsonResponse({"error": "Authentication required"}, status=401)
         except UserProfile.DoesNotExist:

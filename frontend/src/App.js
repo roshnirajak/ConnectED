@@ -22,8 +22,10 @@ import Settings from './components/Setting';
 import QuestionDetail from './components/post/QuestionDetail';
 import AdminPanel from './components/admin/AdminPanel';
 import MentorWaitPage from './components/MentorWaitPage';
+import RemoveMentor from './components/RemoveMentor';
 import MentorTable from './components/admin/MentorTablePage';
 import MentorDetailsPage from './components/admin/MentorDetailsPage';
+import FAQ from './components/FAQ';
 const App = () => {
 
   return (
@@ -47,6 +49,8 @@ const App = () => {
         <Route path="/verify-account" element={<VerifyAccount />} />
 
         <Route path="/my-questions" element={<MyQuestions />} />
+        
+        <Route path="/remove-mentor" element={<RemoveMentor />} />
 
         <Route path="/message" element={<MessagePage />} />
 
@@ -58,9 +62,12 @@ const App = () => {
         <Route path="/settings" element={<Settings />} />
 
         <Route path="/admin" element={<AdminPanel />} />
+
         <Route path="/admin/mentor-table" element={<MentorTable />} />
 
         <Route path="/admin/mentor-verify/detail/:id" element={<MentorDetailsPage/>} />
+
+        <Route path="/faq" element={<FAQ />} />
       </Routes>
     </BrowserRouter>
   );

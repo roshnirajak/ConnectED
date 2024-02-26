@@ -27,7 +27,26 @@ const Settings = () => {
       console.error('Error logging out:', error);
     }
   };
-
+  const handleDelete = async () => {
+    try {
+      const response = await axios.post('http://169.254.37.113:8000/delete/',{}, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken,
+        },
+      });
+      if(response.data){
+        
+        document.cookie = 'email=; expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;';
+        window.location.href = '/';
+        console.log(response.data)
+      }
+      
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
   return (
     <div>
     <div className="settings-container">
@@ -42,10 +61,12 @@ const Settings = () => {
         <hr />
       </div>
       <div className="settings-option">
+      <Link to="/faq">
         <label>
           <h3>FAQ</h3>
           Get Insights to your doubts about our app
         </label>
+        </Link>
         <hr />
       </div>
       <div className="settings-option">
@@ -57,7 +78,7 @@ const Settings = () => {
         <hr />
       </div>
       <div className="settings-option">
-        <label className='delete'>
+        <label onClick={handleDelete} className='delete'>
           <h3>Delete Your Account</h3>
           This option will permanently delete your account from our database
         </label>

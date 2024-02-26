@@ -71,6 +71,7 @@ class Question(models.Model):
     report_count= models.SmallIntegerField(default=0)
     community_id= models.SmallIntegerField()  
     is_active= models.BooleanField(default=True)
+    reported_by = models.ManyToManyField(UserProfile, blank=True, related_name="question_reported_by")
 
     def __str__(self):
         return self.question_id
@@ -88,6 +89,7 @@ class Answer(models.Model):
     is_active= models.BooleanField(default=True)
     liked_by = models.ManyToManyField(UserProfile, blank=True, related_name="user_liked")
     disliked_by = models.ManyToManyField(UserProfile, blank=True, related_name="user_disliked")
+    reported_by = models.ManyToManyField(UserProfile, blank=True, related_name="answer_reported_by")
 
     def __str__(self):
         return self.answer_id
@@ -121,3 +123,4 @@ class Notification(models.Model):
     message = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     is_active= models.BooleanField(default=True)
+    is_read= models.BooleanField(default=False)

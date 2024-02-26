@@ -23,17 +23,18 @@ const RequestSentComponent = () => {
         fetchConversations();
     }, []);
     return (
-        <div>
+        <div className="conversation-sent-container">
             <h2>Request Sent</h2>
             <ul>
                 {conversations.map((conversation, index) => (
                     <li key={index}>
-                        <img src={`${conversation.display_image}&size=50`} alt="Profile" style={{ width: '50px', height: '50px',border:'1px solid #000', borderRadius: '50%' }} />
+                        <img src={`${conversation.display_image}&size=25`} alt="Profile" />
                         <span>{conversation.full_name}</span>
                     </li>
                 ))}
             </ul>
         </div>
+
     );
 };
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import Navbar from './Navbar';
 
 const FriendProfilePage = () => {
     const [userProfile, setUserProfile] = useState(null);
@@ -54,11 +55,11 @@ const FriendProfilePage = () => {
                 },
             });
             const data = response.data;
-             // Set the request status
-            if(data.message==="pending"|| data.message==="rejected"||data.message==="accepted"){
+            // Set the request status
+            if (data.message === "pending" || data.message === "rejected" || data.message === "accepted") {
                 setRequestStatus(data.message);
             }
-            else if(data.message==="Accept Request"){
+            else if (data.message === "Accept Request") {
                 setAcceptRequest(data.message)
             }
         } catch (error) {
@@ -110,18 +111,18 @@ const FriendProfilePage = () => {
     return (
         <div>
             {userProfile ? (
-                <div>
+                <div className="user-profile-container">
                     <h2>User Profile Details</h2>
                     <p> <br />
                         <img
                             alt="profile"
                             style={{
-                                border: `1px solid ${userProfile.profile.user_role === '1' ? 'blue' : '#ddd'}`,
+                                border: `3px solid ${userProfile.profile.user_role === '1' ? '#91a2f6' : '#ddd'}`,
                                 borderRadius: '50%',
-                                width: '250px',
-                                height: '250px'
+                                width: '200px',
+                                height: '200px'
                             }}
-                            src={`${userProfile.profile.display_image}`}
+                            src={`${userProfile.profile.display_image}&size=200`}
                         />
                     </p>
                     <p><strong>Name:</strong> {userProfile.profile.full_name}</p>
@@ -134,22 +135,24 @@ const FriendProfilePage = () => {
                                     userProfile.profile.community_id === 4 ? 'BBA' :
                                         'Unknown Course'}
                     </p>
+
                     {requestStatus && (requestStatus === "pending" || requestStatus === "rejected" || requestStatus === "accepted") && (
                         <p>Request Status: {requestStatus}</p>
                     )}
                     {acceptRequest && acceptRequest === "Accept Request" && (
-                        <button onClick={acceptMessageRequest}>Accept Request</button>
+                        <button onClick={acceptMessageRequest} className="register-button">Accept Request</button>
                     )}
                     {!requestStatus && !acceptRequest && (
-                        <button onClick={sendMessageRequest}>Send Message Request</button>
+                         <>
+                         <p>(This is a one time function, to stop spams)</p>
+                         <button onClick={sendMessageRequest} className="register-button">Send Message Request</button>
+                     </>
                     )}
                 </div>
             ) : (
                 <p>Loading...</p>
             )}
-            <Link to="/homepage">
-                <button className="register-button">Homepage</button>
-            </Link>
+            <Navbar />
         </div>
     );
 };

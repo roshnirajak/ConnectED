@@ -103,7 +103,7 @@ const Chatbox = () => {
 
 
 
-                <div ref={chatboxRef} style={{ height: '450px', overflowY: 'scroll', border: '1px solid #ccc', padding: '10px' }}>
+                <div ref={chatboxRef} style={{ height: '450px', overflowY: 'scroll' }}>
                     {messages.map((message, index) => (
                         <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: message.sender === 'current_user' ? 'flex-end' : 'flex-start' }}>
                             <p style={{
@@ -116,7 +116,7 @@ const Chatbox = () => {
                                 marginBottom: '0px',
                                 borderRadius: message.sender === 'current_user' ? '10px 10px 0 10px' : '10px 10px 10px 0',
                             }}>{message.content}</p>
-                            <small style={{ margin: '0 4px', color: '#888' }}>
+                            <small style={{ margin: '0 4px', color: '#888', fontSize:'x-small' }}>
                                 {new Date(message.timestamp).toLocaleDateString('en-GB')}
                             </small>
                         </div>

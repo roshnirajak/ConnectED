@@ -4,6 +4,8 @@ import Cookies from 'js-cookie';
 import axios from 'axios';
 import MentorTable from './MentorTablePage';
 import AddCommunity from './AddComminity';
+import ReportedQuestion from './ReportedQuestion';
+import ReportedAnswer from './ReportedAnswer';
 import Navbar from '../Navbar';
 
 const AdminPanel = () => {
@@ -24,7 +26,8 @@ const AdminPanel = () => {
                     <div>
                         <button onClick={() => setActiveComponent('community')}>Add Community</button>
                         <button onClick={() => setActiveComponent('mentor')}>Verify Mentor</button>
-                        {/* <button onClick={() => setActiveComponent('settings')}>Manage Settings</button> */}
+                        <button onClick={() => setActiveComponent('reported-question')}>Reported Question</button>
+                        <button onClick={() => setActiveComponent('reported-answer')}>Reported Answer</button>
                         {/* <hr /> */}
                     </div>
                 </div>
@@ -32,7 +35,8 @@ const AdminPanel = () => {
                 <div>
                     {activeComponent === 'community' && <AddCommunity />}
                     {activeComponent === 'mentor' && <MentorTable />}
-                    {/* {activeComponent === 'settings' && <SettingsComponent />} */}
+                    {activeComponent === 'reported-question' && <ReportedQuestion />}
+                    {activeComponent === 'reported-answer' && <ReportedAnswer />}
                 </div>
             </div>
         </>

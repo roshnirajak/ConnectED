@@ -62,6 +62,27 @@ const MentorDetailsPage = () => {
             setVerificationMessage('Something went wrong');
         }
     };
+    const handleRemoveMentor = async () => {
+        try {
+            console.log(csrfToken);
+            const response = await axios.post(
+                `http://169.254.37.113:8000/api/remove_mentor/${userProfile.user_id}/`,
+                {},
+                {
+                    withCredentials: true,
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                    },
+                }
+            );
+    
+            setVerificationMessage('Mentor Removed');
+
+        } catch (error) {
+            console.error('Error verifying mentor:', error);
+            setVerificationMessage('Something went wrong');
+        }
+    };
     return (
         <div>
 
@@ -83,7 +104,8 @@ const MentorDetailsPage = () => {
                         <button onClick={handleVerifyMentor}>Verify Mentor</button>
                     </p>
                     {verificationMessage && <p>{verificationMessage}</p>}
-                    <p><button>Deaavtivate Mentor</button></p>
+                    <p>
+                        <button onClick={handleRemoveMentor}>Deaavtivate Mentor</button></p>
                 </div>
             ) : (
                 <p>Loading...</p>

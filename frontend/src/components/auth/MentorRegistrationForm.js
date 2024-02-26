@@ -7,6 +7,8 @@ const StudentRegistrationForm = () => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [communities, setCommunities] = useState([]);
+  const csrfToken = Cookies.get('csrftoken')
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
@@ -19,6 +21,9 @@ const StudentRegistrationForm = () => {
     previewImage: null,  //image preview
   });
 
+  useEffect(() => {
+    fetchCommunities()
+  }, [])
 
 
   // Check Valid Form``
@@ -79,7 +84,6 @@ const StudentRegistrationForm = () => {
     formDataToSend.append('password', formData.password);
 
     try {
-      
       const response = await axios.post('http://169.254.37.113:8000/register/', formDataToSend, {
         withCredentials: true,
         headers: {
@@ -93,13 +97,35 @@ const StudentRegistrationForm = () => {
         console.log('Mentor registration successful!');
         navigate('/verify-account'); // Redirect to login page
       } else {
+        console.error('Mentor registration failed:', response.status);
         setErrorMessage('Mentor registration failed. Please try again.');
       }
     } catch (error) {
-      setErrorMessage('Email Exists');
+      console.error('Error during mentor registration:', error);
+      if (error.response && error.response.data && error.response.data.error) {
+        setErrorMessage(error.response.data.error);
+      } else {
+        setErrorMessage('Email Exists');
+      }
+    }
+    finally{
+      setLoading(false);
+    }
+  }
+  const fetchCommunities = async () => {
+    try {
+      const response = await axios.get('http://169.254.37.113:8000/api/get_all_community/', {
+        withCredentials: true, // Include credentials (cookies) in the request
+        headers: {
+          'Content-Type': 'application/json',  // Add any required headers here
+          'X-CSRFToken': csrfToken
+        },
+      });
+      setCommunities(response.data.communities);
+    } catch (error) {
+      console.error('Error fetching communities:', error);
     }
   };
-
   return (
     <form className="form-container" onSubmit={handleSubmit}>
       <h1>Mentor Registration </h1>
@@ -123,10 +149,10 @@ const StudentRegistrationForm = () => {
 
       <br />
       <label>
-      Identity Card Image:
+        Identity Card Image:
       </label>
       <label className="file-input-label">
-        
+
         <input type="file" name="mentor_id_card" accept="image/*" onChange={handleFileChange} required />
 
         {formData.previewImage && <div className="file-preview"><img src={formData.previewImage} alt="Preview" /></div>}
@@ -142,11 +168,12 @@ const StudentRegistrationForm = () => {
             onChange={handleChange}
             required
           >
-            <option value="">Select Course</option>
-            <option value="1">BCA</option>
-            <option value="2">BCom</option>
-            <option value="3">BCom Hons.</option>
-            <option value="4">BBA</option>
+            <option value="">Select your Course</option>
+            {communities.map((community) => (
+              <option key={community.community_id} value={community.community_id}>
+                {community.community_name}
+              </option>
+            ))}
           </select>
         </div>
       </label>
@@ -159,10 +186,6 @@ const StudentRegistrationForm = () => {
 
       <br />
       <input type="text" name="user_role" value={formData.user_role = '0'} onChange={handleChange} required hidden />
-
-      <button type="submit" disabled={!isFormValid}>
-        Register
-      </button>
       {loading ? (
         <p style={{ color: 'green' }}>Loading...</p>
       ) : (
@@ -170,6 +193,10 @@ const StudentRegistrationForm = () => {
           {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
         </>
       )}
+      <button type="submit" disabled={!isFormValid}>
+        Register
+      </button>
+      
     </form>
   );
 };

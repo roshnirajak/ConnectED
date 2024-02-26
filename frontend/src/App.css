@@ -271,7 +271,6 @@ input[type="text"], input[type="email"]{
 }
 
 .user-profile-container .register-button {
-  background-color: #3498db;
   color: #fff;
   padding: 10px 20px;
   border: none;
@@ -343,9 +342,28 @@ input[type="text"], input[type="email"]{
 
 
 
+/************ Message Main Page ************/
+.msg-box-container{
+  padding:20px;
+}
+.msg-box-container h1{
+  color:var(--primary-blue)
+}
+.msg-button-container {
+  display: flex;
+  justify-content: space-around;
+}
 
+.msg-button-container button {
+  margin-right: 10px;
+  border: none;
+  background-color: transparent;
+  border-bottom: 2px solid transparent;
+}
 
-
+.msg-button-container button.active {
+  border-bottom: 2px solid blue;
+}
 
 
 /************ Homepage ************/
@@ -385,8 +403,20 @@ input[type="text"], input[type="email"]{
   margin-top: 8px;
   font-size: 16px;
 }
-
-.trash-icon, .flag-icon {
+.flag-button{
+  float: right;
+  color:#888
+}
+.flag-button .flag-icon{
+  color:#888
+}
+.thickthumb{
+  color:var(--primary-blue)
+}
+.thinthumb{
+  color:var(--primary-blue)
+}
+.trash-icon{
   color: var(--red);
   margin-right: 5px;
   float:right;
@@ -664,9 +694,31 @@ input[type="text"], input[type="email"]{
   color: var(--red)
 }
 
+/************ FAQ Page ************/
+.faq-component {
+  padding:10px;
+  max-width: 600px; /* Adjust as needed */
+  margin: 0 auto;
+}
+
+.faq-item {
+  margin-bottom: 20px;
+}
+.faq-component h2{
+  color:var(--primary-blue);
+}
+.faq-item h3 {
+  color: #333;
+}
+
+.faq-item p {
+  color: #666;
+}
+
+
 /************ Inbox ************/
 .inbox-container {
-  padding: 20px;
+  padding: 10px;
 }
 
 .inbox-container h2 {
@@ -708,7 +760,7 @@ input[type="text"], input[type="email"]{
 
 /************ ChatBox ************/
 .chat-container {
-  /* margin: 20px; */
+  margin: 20px;
 }
 
 .chat-container h2 {
@@ -720,13 +772,17 @@ input[type="text"], input[type="email"]{
   width: 50px;
   height: 50px;
 }
+.chat-container p{
+  font-size: small;
+}
 .text-box p{
   width:auto;
-  padding:5px 10px
+  padding:5px 10px;
 }
 .typing-area{ 
   position: absolute;
   bottom:0%;
+  left:0%;
   width:100%;
   background-color:var(--light-grey)
 }
@@ -766,6 +822,99 @@ input[type="text"], input[type="email"]{
 
 
 
+/************ Message: Request Sent ************/
+.conversation-sent-container {
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.conversation-sent-container ul {
+  list-style: none;
+  padding: 0;
+}
+
+.conversation-sent-container li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  padding:10px;
+}
+
+.conversation-sent-container img {
+  width: 25px;
+  height: 25px;
+  border: 2px solid #ddd;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+
+/************ Message: Request Received ************/
+.conversation-rec-container {
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.conversation-rec-container h2 {
+  margin-bottom: 10px;
+}
+
+.conversation-rec-container ul {
+  list-style: none;
+  padding: 0;
+}
+
+.conversation-rec-container li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.conversation-rec-container img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.conversation-rec-container button {
+  margin-left: auto;
+  font-size: small;
+}
+
+.conversation-rec-container .accept {
+  background-color: #4caf50; /* Green */
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.conversation-rec-container .accept:hover {
+  background-color: #45a049; /* Darker green */
+}
+
+.conversation-rec-container .reject {
+  background-color: #f44336; /* Red */
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.conversation-rec-container .reject:hover {
+  background-color: #da190b; /* Darker red */
+}
 
 
 
@@ -906,26 +1055,48 @@ input[type="text"], input[type="email"]{
   text-align: center;
 }
 
-.active {
+.mentor-list-container .active {
   color: green;
 }
 
-.inactive {
+.mentor-list-container .inactive {
   color: red;
 }
 
-.not-verified {
+.mentor-list-container .not-verified {
   color: red;
 }
 
-.verified {
+.mentor-list-container .verified {
   color: green;
 }
 
-.student {
+.mentor-list-container .student {
   color: orange;
 }
 
-.unknown {
+.mentor-list-container .unknown {
   color: gray;
+}
+
+
+/************ Admin: Reports ************/
+.reported-questions-container {
+  margin-top: 20px;
+}
+
+.reported-questions-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.reported-questions-table th,
+.reported-questions-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.reported-questions-table th {
+  background-color: #f2f2f2;
 }

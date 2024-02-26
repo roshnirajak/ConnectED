@@ -17,7 +17,7 @@ const MyQuestions = () => {
     const csrfToken = Cookies.get('csrftoken');
 
     const fetchData = async () => {
-        
+
         try {
             const response = await axios.get('http://169.254.37.113:8000/question/my-questions-data/', {
                 withCredentials: true,
@@ -31,7 +31,26 @@ const MyQuestions = () => {
             console.error('Error fetching data:', error);
         }
     };
-
+    const handleDeleteQuestion = async (question_id) => {
+        const csrfToken = Cookies.get('csrftoken');
+        try {
+            const response = await axios.post(
+                `http://169.254.37.113:8000/question/my-questions-delete/${question_id}/`,
+                {},
+                {
+                    withCredentials: true,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                }
+            );
+            console.log(response.data);
+        } catch (error) {
+            console.error('Error deleting question:', error);
+        }
+        fetchData()
+    };
     useEffect(() => {
         fetchData();
 
@@ -92,7 +111,11 @@ const MyQuestions = () => {
                         <br />
 
 
-                        <FontAwesomeIcon icon={faTrash} className="trash-icon" />
+                        <FontAwesomeIcon
+                            icon={faTrash}
+                            className="trash-icon"
+                            onClick={() => handleDeleteQuestion(item.question_id)}
+                        />
 
                         <Link to={`/question-detail/${item.question_id}`}>
                             <button className='num-of-answer'><b>{item.answer_count} Answer</b></button>
@@ -100,14 +123,7 @@ const MyQuestions = () => {
 
                     </div>
                 ))}
-                <div className="pagination-container">
-                    <span className="pagination-info">Page {currentPage} of {totalPages}</span> <br />
-                    {Array.from({ length: totalPages }, (_, index) => (
-                        <button key={index + 1} onClick={() => handlePageChange(index + 1)} className="pagination-button">
-                            {index + 1}
-                        </button>
-                    ))}
-                </div>
+                
 
                 <br />
                 <br />

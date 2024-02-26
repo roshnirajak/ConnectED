@@ -4,8 +4,17 @@ import { useParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faThumbsDown as ThickThumbDown, faThumbsUp as ThickThumbUp } from '@fortawesome/free-solid-svg-icons'
-import { faThumbsDown as ThinThumbDown, faThumbsUp as ThinThumbUp } from '@fortawesome/free-regular-svg-icons';
+import {
+  faThumbsDown as ThickThumbDown,
+  faThumbsUp as ThickThumbUp,
+  faFlag as ThinFlag,
+  faTrash as Trash
+} from '@fortawesome/free-solid-svg-icons'
+import {
+  faThumbsDown as ThinThumbDown,
+  faThumbsUp as ThinThumbUp,
+  faFlag as ThickFlag
+} from '@fortawesome/free-regular-svg-icons';
 import Navbar from '../Navbar';
 
 
@@ -14,27 +23,27 @@ const QuestionDetail = () => {
   const [questionData, setQuestionData] = useState({});
   const [loading, setLoading] = useState(true);
   const csrfToken = Cookies.get('csrftoken')
+
   useEffect(() => {
-
-    const fetchQuestionDetails = async () => {
-      try {
-        const response = await axios.get(`http://169.254.37.113:8000/question/question-detail/${questionId}`, {
-          withCredentials: true,
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrfToken,
-          }
-        });
-        setQuestionData(response.data.question);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching question details:', error);
-        setLoading(false);
-      }
-    };
-
     fetchQuestionDetails();
   }, [questionId, csrfToken]);
+
+  const fetchQuestionDetails = async () => {
+    try {
+      const response = await axios.get(`http://169.254.37.113:8000/question/question-detail/${questionId}`, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken,
+        }
+      });
+      setQuestionData(response.data.question);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching question details:', error);
+      setLoading(false);
+    }
+  };
 
   const handleToggleUpvote = async (answerId) => {
     try {
@@ -49,7 +58,6 @@ const QuestionDetail = () => {
       });
 
       if (response.status === 200) {
-        // Update the state of the liked answer
         setQuestionData(prevQuestionData => ({
           ...prevQuestionData,
           answers: prevQuestionData.answers.map(answer => {
@@ -104,6 +112,75 @@ const QuestionDetail = () => {
     }
   };
 
+  const toggleAnswerReport = async (answerId) => {
+    try {
+      const response = await axios.post(`http://169.254.37.113:8000/question/toggle-answer-report/${answerId}/`, null, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken,
+        },
+      });
+
+      if (response.status === 200) {
+        console.log(response.data)
+        fetchQuestionDetails()
+      }
+    } catch (error) {
+      console.error('Error toggling dislike:', error);
+    }
+  };
+
+  const toggleQuestionReport = async () => {
+
+    setLoading(true);
+    try {
+      // Make a POST request to ToggleQuestionReport endpoint
+      const response = await axios.post(
+        `http://169.254.37.113:8000/question/toggle-question-report/${questionData.question_id}/`,
+        null, // No request data needed for this endpoint
+        {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken, // Replace with actual CSRF token
+          },
+        }
+      );
+      if (response.status === 200) {
+        console.log(questionData)
+        fetchQuestionDetails()
+
+        console.log('Toggle successful');
+      } else {
+        console.error('Toggle failed:', response.data.message);
+      }
+    } catch (error) {
+      console.error('Error toggling report:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleDeleteAnswer = async (answer_id) => {
+    const csrfToken = Cookies.get('csrftoken');
+    try {
+        const response = await axios.post(
+            `http://169.254.37.113:8000/question/my-answer-delete/${answer_id}/`,
+            {},
+            {
+                withCredentials: true,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+            }
+        );
+        console.log(response.data);
+    } catch (error) {
+        console.error('Error deleting question:', error);
+    }
+    fetchQuestionDetails()
+};
   return (
     <div>
       {loading ? (
@@ -113,7 +190,7 @@ const QuestionDetail = () => {
       ) : (
         <div className="question-box">
           <div className="question">
-            <h1>{questionData.question_content}</h1>
+            <h1>{questionData?.question_content}</h1>
 
 
             {questionData.self_user ? (
@@ -124,7 +201,7 @@ const QuestionDetail = () => {
                     width: '25px',
                     border: `4px solid ${questionData.user_role === '1' ? '#91a2f6' : '#ddd'}`,
                     borderRadius: '50%',
-                    marginRight:'5px'
+                    marginRight: '5px'
                   }} src={`${questionData.display_image}&size=25`} />
                   <span className="question-user">{questionData.user_full_name}</span>
                 </div>
@@ -137,7 +214,7 @@ const QuestionDetail = () => {
                     width: '25px',
                     border: `4px solid ${questionData.user_role === '1' ? '#91a2f6' : '#ddd'}`,
                     borderRadius: '50%',
-                    marginRight:'5px'
+                    marginRight: '5px'
                   }} src={`${questionData.display_image}&size=25`} />
                   <span className="question-user">{questionData.user_full_name}</span>
                 </div>
@@ -146,6 +223,20 @@ const QuestionDetail = () => {
 
 
             <p>Created At: {questionData.created_at}</p>
+
+            <div className="flag-button" disabled={loading}>
+
+
+              <span>
+                <FontAwesomeIcon
+                  icon={ThickFlag}
+                  onClick={() => toggleQuestionReport(questionData.question_id)}
+                />
+              </span>
+              <br />
+              <span>{questionData.report_count}</span>
+            </div>
+
           </div>
           <div className="answers">
             <h2>Answers</h2>
@@ -169,9 +260,9 @@ const QuestionDetail = () => {
                         width: '25px',
                         border: `4px solid ${answer.user_role === '1' ? '#91a2f6' : '#ddd'}`,
                         borderRadius: '50%',
-                        marginRight:'5px'
+                        marginRight: '5px'
                       }} src={`${answer.display_image}&size=25`} />
-                       <span className="question-user">{answer.user_full_name}</span>
+                      <span className="question-user">{answer.user_full_name}</span>
                     </React.Fragment>
                   ) : (
                     <Link to={`/friend-profile/${answer.answer_user}`}>
@@ -187,6 +278,7 @@ const QuestionDetail = () => {
                         <span className="question-user">{answer.user_full_name}</span>
                       </div>
                     </Link>
+
                   )}
 
                   <br />
@@ -196,6 +288,7 @@ const QuestionDetail = () => {
                       <span>
                         <FontAwesomeIcon
                           icon={ThickThumbUp}
+                          className='thickthumb'
                           onClick={() => handleToggleUpvote(answer.answer_id)}
                         />
                       </span>
@@ -203,6 +296,7 @@ const QuestionDetail = () => {
                       <span>
                         <FontAwesomeIcon
                           icon={ThinThumbUp}
+                          className='thinthumb'
                           onClick={() => handleToggleUpvote(answer.answer_id)}
                         />
                       </span>
@@ -211,6 +305,7 @@ const QuestionDetail = () => {
                       <span>
                         <FontAwesomeIcon
                           icon={ThickThumbDown}
+                          className='thickthumb'
                           onClick={() => handleToggleDownvote(answer.answer_id)}
                         />
                       </span>
@@ -218,6 +313,7 @@ const QuestionDetail = () => {
                       <span>
                         <FontAwesomeIcon
                           icon={ThinThumbDown}
+                          className='thinthumb'
                           onClick={() => handleToggleDownvote(answer.answer_id)}
                         />
                       </span>
@@ -228,6 +324,36 @@ const QuestionDetail = () => {
 
                     {answer.upvotes} {answer.downvotes}
 
+
+                  </div>
+
+
+                  {answer.self_user ? (
+                    <React.Fragment>
+                      <FontAwesomeIcon
+                            icon={Trash}
+                            className="trash-icon"
+                            style={{marginTop:'-20px'}} 
+                            onClick={() => {handleDeleteAnswer(answer.answer_id)}}
+                        />
+                    </React.Fragment>
+                  ) : (
+                    <>
+                    </>
+
+                  )}
+                  
+                  <div className="flag-button" style={{marginTop:'-80px'}} disabled={loading}>
+
+
+                    <span>
+                      <FontAwesomeIcon
+                        icon={ThickFlag}
+                        onClick={() => toggleAnswerReport(answer.answer_id)}
+                      />
+                    </span>
+                    <br />
+                    <span>{answer.report_count}</span>
                   </div>
                 </div>
               </div>

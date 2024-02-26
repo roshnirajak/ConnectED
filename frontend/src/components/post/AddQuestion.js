@@ -11,6 +11,7 @@ const AddQuestion = () => {
     const [questionContent, setQuestionContent] = useState('');
     const [subject, setSubject] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleInputChange = (e) => {
         const inputValue = e.target.value;
@@ -23,10 +24,11 @@ const AddQuestion = () => {
     const handleAddQuestion = async () => {
         const csrfToken = Cookies.get('csrftoken')
         try {
+            setLoading(true);
             // Validate input lengths
             
             if (questionContent.length <= 20 || questionContent.length > 200) {
-                setErrorMessage('Question content must be less than 200 characters.');
+                setErrorMessage('Question content must be between 20 to 200 characters.');
                 return;
             }
             else if (subject.length < 3 || subject.length > 20) {
@@ -83,8 +85,11 @@ const AddQuestion = () => {
                         placeholder="Enter subject"
                     />
                 </div>
+                {loading ? 'Adding...' : ''}
                 <button onClick={handleAddQuestion}>Add Question</button>
             </div>
+            <br/>
+            <br/>
             <Navbar />
         </div>
     );
