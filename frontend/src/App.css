@@ -466,7 +466,9 @@ input[type="text"], input[type="email"]{
   font-size: 24px;
   margin-bottom: 10px;
 }
-
+.add-question-container h1{
+  color:var(--primary-blue);
+}
 .add-question-container label {
   display: block;
   margin-bottom: 5px;
