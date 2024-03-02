@@ -642,7 +642,7 @@ input[type="text"], input[type="email"]{
 
 .add-answer-container button {
   padding: 10px 20px;
-  background-color: #3498db;
+  background-color: var(--primary-blue);
   color: #fff;
   border: none;
   border-radius: 5px;
