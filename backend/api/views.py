@@ -173,15 +173,6 @@ class GetCommunity(APIView):
             {"email":user_profile.email, "community": user_profile.community_id})
 
 
-# test class
-class GetUser(APIView):
-    def get(self, request, format=None):
-        print("Request:", request)
-        print("User:", request.user)
-        print("Session:", request.session)
-        print("Cookies:", request.COOKIES)
-
-
 @method_decorator(ensure_csrf_cookie, name="dispatch")
 class DeactivateAccountView(APIView):
     def post(self, request, format=None):
