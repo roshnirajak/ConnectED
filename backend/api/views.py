@@ -176,7 +176,6 @@ class GetCommunity(APIView):
 # test class
 class GetUser(APIView):
     def get(self, request, format=None):
-        print("Request:", request)
         print("User:", request.user)
         print("Session:", request.session)
         print("Cookies:", request.COOKIES)
