@@ -181,11 +181,6 @@ class GetUser(APIView):
         print("Session:", request.session)
         print("Cookies:", request.COOKIES)
 
-        if request.user.is_authenticated:
-            return Response({"is_authenticated"})
-        else:
-            return Response({"not_authenticated"})
-
 
 @method_decorator(ensure_csrf_cookie, name="dispatch")
 class DeactivateAccountView(APIView):
